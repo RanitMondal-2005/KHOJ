@@ -1,0 +1,348 @@
+/* Body */
+body {
+    background-color: #f5f6fa;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.92rem;
+    color: #2d3436;
+    /* sticky footer fix - body takes full viewport height as a column */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* main content grows to fill whatever space is left between navbar and footer */
+main {
+    flex: 1;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────── */
+/* dark background, slightly warm tone */
+.khoj-navbar {
+    background-color: #141920 !important;
+    border-bottom: 1px solid #2a313d;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+}
+
+/* brand logo icon - blue accent */
+.khoj-logo-icon {
+    font-size: 1.3rem;
+    color: #4e9af1;
+    line-height: 1;
+}
+
+/* brand name text */
+.khoj-logo-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #fff;
+}
+
+/* individual nav link items */
+.nav-link-khoj {
+    color: #adb5bd !important;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.42rem 0.7rem !important;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;  /* Smooth transition for hover effects */
+}
+
+.nav-link-khoj:hover {
+    color: #fff !important;
+    background-color: rgba(255,255,255,0.08);
+}
+
+/* Register button - must stand out from nav links on dark bg */
+.btn-khoj-register {
+    background-color: #4e9af1;
+    color: #fff !important;
+    border: none;
+    font-size: 0.83rem;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.4rem 1rem !important;
+    transition: background 0.15s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-khoj-register:hover {
+    background-color: #3a87e0;
+    color: #fff !important;
+}
+
+/* user avatar - circle with first letter of name */
+.khoj-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #4e9af1;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* dropdown toggle for user name/avatar */
+.khoj-user-pill {
+    color: #adb5bd !important;
+    font-size: 0.84rem;
+    padding: 0.35rem 0.6rem !important;
+    border-radius: 20px;
+    transition: background 0.15s ease;
+}
+
+.khoj-user-pill:hover {
+    background-color: rgba(255,255,255,0.08);
+}
+
+/* notification badge on bell icon */
+.khoj-notif-badge {
+    font-size: 0.5rem !important;
+    top: 4px !important;
+    left: 68% !important;
+    padding: 2px 4px !important;
+    min-width: 15px;
+    line-height: 1.3;
+}
+
+/* small role indicator dot in dropdown */
+.khoj-role-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.khoj-role-family  { background-color: #0d6efd; }
+.khoj-role-hospital { background-color: #198754; }
+.khoj-role-police  { background-color: #dc3545; }
+
+/* ── Dropdown ────────────────────────────────────────────────── */
+.dropdown-menu {
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    font-size: 0.85rem;
+    min-width: 175px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+}
+
+/* ── Flash alerts ────────────────────────────────────────────── */
+.khoj-alert {
+    font-size: 0.87rem;
+    border-radius: 8px;
+    border: none;
+}
+
+/* ── Cards ───────────────────────────────────────────────────── */
+.card {
+    border: 1px solid #e2e5ea;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    border-bottom: 1px solid #e2e5ea;
+    border-radius: 8px 8px 0 0 !important;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* ── Stat Cards on dashboards ────────────────────────────────── */
+.stat-card {
+    border-left: 4px solid;
+    border-radius: 8px;
+    background: #fff;
+    transition: box-shadow 0.15s;
+}
+
+.stat-card:hover {
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+    font-size: 0.88rem;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+}
+
+/* ── Forms ───────────────────────────────────────────────────── */
+.form-control, .form-select {
+    font-size: 0.88rem;
+    border-radius: 6px;
+    border-color: #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4e9af1;
+    box-shadow: 0 0 0 3px rgba(78,154,241,0.12);
+}
+
+.form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.28rem;
+}
+
+.form-text { font-size: 0.76rem; }
+
+/* section dividers inside long forms */
+.form-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #868e96;
+    margin-top: 1.25rem;
+    margin-bottom: 0.65rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.3rem;
+}
+
+/* ── Tables ──────────────────────────────────────────────────── */
+.table { font-size: 0.88rem; }
+
+.table th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.table-hover tbody tr:hover { background-color: #f8f9fa; }
+
+/* ── Photo Thumbnails ────────────────────────────────────────── */
+.photo-thumb {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    flex-shrink: 0;
+}
+
+.photo-thumb-lg {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* ── Match Cards ─────────────────────────────────────────────── */
+.match-card { transition: box-shadow 0.15s ease, transform 0.1s ease; }
+
+.match-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.09);
+    transform: translateY(-1px);
+}
+
+/* ── Case Update Timeline ────────────────────────────────────── */
+.update-item {
+    border-left: 3px solid #dee2e6;
+    padding-left: 1rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.25rem;
+}
+
+/* most recent update gets blue left border */
+.update-item:last-child { border-left-color: #4e9af1; margin-bottom: 0; }
+.update-item .update-meta { font-size: 0.75rem; color: #868e96; margin-bottom: 0.25rem; }
+
+/* ── Hero section (home page) ────────────────────────────────── */
+.khoj-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #1a3a5c 100%);
+    color: #fff;
+    padding: 5.5rem 0 5rem;
+}
+
+.khoj-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+}
+
+.khoj-hero .lead {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.75);
+}
+
+/* feature cards on how-it-works section */
+.feature-card {
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+    padding: 1.75rem 1.5rem;
+    background: #fff;
+    height: 100%;
+    transition: box-shadow 0.15s, transform 0.12s;
+}
+
+.feature-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+    transform: translateY(-3px);
+}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+/* dark bg - all text must use light colors, NOT text-muted (too dark) */
+.khoj-footer {
+    background-color: #0f172a;
+    border-top: 1px solid #1e293b;
+}
+
+/* ── Section header (used on home page sections) ─────────────── */
+.section-header {
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ── Auth card (login/register pages) ────────────────────────── */
+.auth-card {
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+/* ── Badges ──────────────────────────────────────────────────── */
+.badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 0.3em 0.55em;
+}
+
+/* ── List Groups ─────────────────────────────────────────────── */
+.list-group-item { font-size: 0.88rem; border-color: #e9ecef; }
+.list-group-item:first-child { border-top: none; }
+
+/* ── Dashboard card quick links ──────────────────────────────── */
+a.card { color: inherit; text-decoration: none; }
+a.card:hover .card-body { background-color: #f8f9ff; border-radius: 8px; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 576px) {
+    .khoj-hero { padding: 3rem 0; }
+    .khoj-hero h1 { font-size: 2rem; }
+    .photo-thumb-lg { width: 100px; height: 100px; }
+}
+
+/* ── Print ───────────────────────────────────────────────────── */
+@media print {
+    .khoj-navbar, .khoj-footer, .btn, .alert .btn-close { display: none !important; }
+}

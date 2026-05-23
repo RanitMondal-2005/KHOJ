@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- page title comes from each template via block, fallback is just Khoj -->
+    <title>{% block title %}Khoj{% endblock %} — Missing Person Coordination</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- our custom styles, loaded last so they can override bootstrap -->
+    <link href="/static/css/khoj.css" rel="stylesheet">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark khoj-navbar sticky-top">
+    <div class="container">
+
+        <!-- brand / logo - clicking takes you home -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <span class="khoj-logo-icon"><i class="bi bi-search-heart"></i></span>
+            <span class="khoj-logo-text">Khoj</span>
+        </a>
+
+        <!-- mobile hamburger -->
+        <button class="navbar-toggler border-0" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+
+                {% if user.is_authenticated %}
+
+                    <!-- ── FAMILY nav links ── -->
+                    {% if user.role == 'FAMILY' %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'family:dashboard' %}">
+                                <i class="bi bi-grid me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'family:my_reports' %}">
+                                <i class="bi bi-file-text me-1"></i>My Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'family:my_matches' %}">
+                                <i class="bi bi-diagram-3 me-1"></i>Matches
+                            </a>
+                        </li>
+
+                        <!-- notification bell with unread badge -->
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj position-relative px-2" href="{% url 'notifications:list' %}" title="Notifications">
+                                <i class="bi bi-bell fs-6"></i>
+                                {% if unread_notif_count > 0 %}
+                                    <!-- red dot with count - only shows when there are unread notifs -->
+                                    <span class="position-absolute translate-middle badge rounded-pill bg-danger khoj-notif-badge">
+                                        {{ unread_notif_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+
+                    <!-- ── HOSPITAL nav links ── -->
+                    {% elif user.role == 'HOSPITAL' %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'hospital:dashboard' %}">
+                                <i class="bi bi-grid me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'hospital:view_patients' %}">
+                                <i class="bi bi-person-lines-fill me-1"></i>Patients
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'hospital:match_alerts' %}">
+                                <i class="bi bi-bell-fill me-1"></i>Match Alerts
+                            </a>
+                        </li>
+
+                        <!-- same notification bell for hospital -->
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj position-relative px-2" href="{% url 'notifications:list' %}" title="Notifications">
+                                <i class="bi bi-bell fs-6"></i>
+                                {% if unread_notif_count > 0 %}
+                                    <span class="position-absolute translate-middle badge rounded-pill bg-danger khoj-notif-badge">
+                                        {{ unread_notif_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+
+                    <!-- ── POLICE nav links ── -->
+                    {% elif user.role == 'POLICE' %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'police:dashboard' %}">
+                                <i class="bi bi-grid me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'police:regional_cases' %}">
+                                <i class="bi bi-geo-alt me-1"></i>Regional Cases
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'police:nearby_matches' %}">
+                                <i class="bi bi-diagram-3 me-1"></i>Matches
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-khoj" href="{% url 'police:search_hospitals' %}">
+                                <i class="bi bi-hospital me-1"></i>Hospitals
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <!-- ── user dropdown - shown for ALL roles ── -->
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 khoj-user-pill"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- little colored circle with first letter of name -->
+                            <span class="khoj-avatar">{{ user.full_name|first|upper }}</span>
+                            <span class="d-none d-lg-inline">{{ user.full_name|truncatechars:16 }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-1">
+
+                            <!-- role label at top of dropdown -->
+                            <li>
+                                <span class="dropdown-item-text d-flex align-items-center gap-2 py-2">
+                                    <span class="khoj-role-dot khoj-role-{{ user.role|lower }}"></span>
+                                    <span class="text-muted small">{{ user.get_role_display }}</span>
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+
+                            <!-- dashboard link in dropdown - goes to the right one per role -->
+                            {% if user.role == 'FAMILY' %}
+                            <li>
+                                <a class="dropdown-item small py-2" href="{% url 'family:dashboard' %}">
+                                    <i class="bi bi-grid me-2 text-muted"></i>Dashboard
+                                </a>
+                            </li>
+                            {% elif user.role == 'HOSPITAL' %}
+                            <li>
+                                <a class="dropdown-item small py-2" href="{% url 'hospital:dashboard' %}">
+                                    <i class="bi bi-grid me-2 text-muted"></i>Dashboard
+                                </a>
+                            </li>
+                            {% elif user.role == 'POLICE' %}
+                            <li>
+                                <a class="dropdown-item small py-2" href="{% url 'police:dashboard' %}">
+                                    <i class="bi bi-grid me-2 text-muted"></i>Dashboard
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item text-danger small py-2" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                {% else %}
+                    <!-- ── public / not logged in ── -->
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-khoj" href="{% url 'about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-khoj" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <!-- register button styled differently to draw attention -->
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-khoj-register btn-sm px-3 py-2" href="{% url 'register_choice' %}">
+                            Register
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+{% comment %} FLASH MESSAGES {% endcomment %}
+     
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+        <!-- map Django message tags to Bootstrap alert variants -->
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show khoj-alert"
+             role="alert">
+            {% if message.tags == 'success' %}<i class="bi bi-check-circle me-2"></i>
+            {% elif message.tags == 'error' %}<i class="bi bi-exclamation-circle me-2"></i>
+            {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle me-2"></i>
+            {% else %}<i class="bi bi-info-circle me-2"></i>{% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<!-- main content area - each page fills this -->
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="khoj-footer mt-auto">
+    <div class="container">
+        <div class="row align-items-center py-4">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <!-- brand in footer -->
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-search-heart" style="color:#4e9af1;"></i>
+                    <!-- fw-semibold text-light so it shows on dark bg -->
+                    <span class="fw-semibold text-light small">Khoj</span>
+                </div>
+                <div class="mt-1" style="font-size:0.75rem; color:#8a9bb0;">
+                    Missing Person Coordination Platform
+                </div>
+            </div>
+            <div class="col-md-8 text-md-end">
+                <!-- disclaimer text  -->
+                <p class="mb-0" style="font-size:0.75rem; line-height:1.7; color:#8a9bb0;">
+                    This platform is a coordination support tool only.
+                    It does not replace official police systems, FIR registration, or any legal process.
+                    Always report missing persons to your local police station.
+                </p>
+            </div>
+        </div>
+        <!-- bottom strip  -->
+        <div class="py-2 text-center" style="border-top: 1px solid #2a3a4a;">
+            <span style="font-size:0.7rem; color:#5a7080;">
+                &copy; Khoj &nbsp;|&nbsp; Missing & Unidentified Persons Coordination Platform &nbsp;|&nbsp; Developed by @ranitmondal and @biswajitsamanta
+            </span>
+        </div>
+    </div>
+</footer>
+
+
+<!-- Bootstrap JS bundle (includes Popper for dropdowns) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
+<!-- our own JS -->
+<script src="/static/js/khoj.js"></script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

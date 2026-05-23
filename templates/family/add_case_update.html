@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Add Case Update{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:600px;">
+  <a href="{% url 'family:report_detail' report.pk %}" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Report</a>
+  <h4 class="fw-semibold mt-2 mb-1">Add Update for {{ report.person_name }}</h4>
+  <p class="text-muted small mb-4">Add any clue, search progress, or new information you've found.</p>
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Update / Clue *</label>
+          {{ form.note }}
+          {% if form.note.errors %}<div class="text-danger small">{{ form.note.errors.0 }}</div>{% endif %}
+          <div class="form-text">Examples: "Phone active near Dum Dum metro", "Spotted near Howrah station", "Wearing blue shirt"</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Attach Image (Optional)</label>
+          {{ form.optional_image }}
+        </div>
+        <button type="submit" class="btn btn-primary">Save Update</button>
+        <a href="{% url 'family:report_detail' report.pk %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

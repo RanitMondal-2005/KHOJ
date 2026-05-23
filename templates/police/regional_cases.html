@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Regional Cases{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <h4 class="fw-bold mb-1">Regional Unidentified Patients</h4>
+  <p class="text-muted small mb-3">
+    Patients admitted to hospitals in and around <strong>{{ district }}</strong> district
+    without identification. Use this to cross-reference with your investigation.
+  </p>
+
+  <!-- search + status filter bar -->
+  <form method="get" class="d-flex gap-2 mb-4 flex-wrap">
+    <input type="text" name="q" value="{{ query }}"
+           class="form-control form-control-sm" style="max-width:300px;"
+           placeholder="Search by name or location...">
+
+    <!-- quick status filter buttons -->
+    <select name="status" class="form-select form-select-sm" style="width:auto;">
+      <option value="" {% if not status_filter %}selected{% endif %}>All Status</option>
+      <option value="UNIDENTIFIED" {% if status_filter == 'UNIDENTIFIED' %}selected{% endif %}>Unidentified Only</option>
+      <option value="IDENTIFIED" {% if status_filter == 'IDENTIFIED' %}selected{% endif %}>Identified Only</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary btn-sm px-3">
+      <i class="bi bi-search me-1"></i>Search
+    </button>
+    {% if query or status_filter %}
+    <a href="{% url 'police:regional_cases' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-x me-1"></i>Clear
+    </a>
+    {% endif %}
+  </form>
+
+  {% if patients %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th style="width:55px;"></th>
+          <th>Patient (Est. Name)</th>
+          <th>Age / Gender</th>
+          <th>Found Location</th>
+          <th>District</th>
+          <th>Admitted</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in patients %}
+        <tr>
+          <td>
+            {% if patient.face_image %}
+            <img src="{{ patient.face_image.url }}"
+                 style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #dee2e6;"
+                 alt="">
+            {% else %}
+            <div style="width:40px;height:40px;background:#f1f3f5;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+              <i class="bi bi-person text-muted"></i>
+            </div>
+            {% endif %}
+          </td>
+          <td class="fw-semibold">{{ patient.estimated_name|default:"Unknown" }}</td>
+          <td class="text-muted small">~{{ patient.age }} yrs, {{ patient.get_gender_display }}</td>
+          <td class="small">{{ patient.found_location }}</td>
+          <td>{{ patient.district }}</td>
+          <td class="text-muted small">{{ patient.admission_date }}</td>
+          <td>
+            {% if patient.status == 'UNIDENTIFIED' %}
+            <span class="badge bg-warning text-dark">UNIDENTIFIED</span>
+            {% else %}
+            <span class="badge bg-success">IDENTIFIED</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'police:case_detail' patient.pk %}"
+               class="btn btn-sm btn-outline-primary">Details</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-muted small mt-2">
+    {{ patients|length }} record(s) found in {{ district }} district
+    {% if query %} for "{{ query }}"{% endif %}
+  </div>
+
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-person-x fs-1 d-block mb-2 opacity-50"></i>
+    {% if query %}
+    <p class="fw-semibold">No records found for "{{ query }}"</p>
+    {% else %}
+    <p class="fw-semibold">No unidentified patients in {{ district }} district.</p>
+    {% endif %}
+    <p class="small">Records appear here when hospital staff upload patient records in your area.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

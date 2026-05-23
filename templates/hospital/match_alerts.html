@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% block title %}Match Alerts{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <h4 class="fw-bold mb-1">Match Alerts</h4>
+  <p class="text-muted small mb-4">
+    Potential matches between your patients and missing person reports.
+    Contact the family directly to verify.
+  </p>
+
+  {% if matches %}
+  {% for match in matches %}
+
+  <div class="card mb-4" style="border-radius:12px; border:1px solid #e3e8ef; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div class="card-body p-4">
+
+      <div class="row g-4">
+
+        <!-- LEFT: your patient info (text only, no photos of your own patient) -->
+        <div class="col-md-3">
+          <div class="text-muted small fw-semibold mb-2 text-uppercase"
+               style="font-size:0.68rem; letter-spacing:0.06em;">Your Patient</div>
+          <div class="fw-semibold mb-1">
+            {{ match.unidentified_patient.estimated_name|default:"Unknown Patient" }}
+          </div>
+          <div class="text-muted small">
+            <i class="bi bi-geo-alt me-1"></i>{{ match.unidentified_patient.found_location }}<br>
+            <i class="bi bi-calendar me-1"></i>Admitted: {{ match.unidentified_patient.admission_date }}<br>
+            {{ match.unidentified_patient.get_gender_display }}, ~{{ match.unidentified_patient.age }} yrs
+          </div>
+          {% if match.unidentified_patient.status == 'UNIDENTIFIED' %}
+          <span class="badge bg-warning text-dark mt-2 d-inline-block">UNIDENTIFIED</span>
+          {% else %}
+          <span class="badge bg-success mt-2 d-inline-block">IDENTIFIED</span>
+          {% endif %}
+        </div>
+
+        <!-- ARROW -->
+        <div class="col-md-1 d-flex align-items-center justify-content-center">
+          <i class="bi bi-arrow-left-right fs-4 text-muted"></i>
+        </div>
+
+        <!-- CENTER: missing person details + family's 2 uploaded photos -->
+        <div class="col-md-5">
+          <div class="text-muted small fw-semibold mb-2 text-uppercase"
+               style="font-size:0.68rem; letter-spacing:0.06em;">Missing Person Report</div>
+
+          <div class="fw-bold fs-6 mb-2">{{ match.missing_person.person_name }}</div>
+
+          <!--
+            Hospital sees the 2 photos uploaded by the family (passport + full body).
+            These cycle in a slider so hospital can compare against their patient.
+          -->
+          <div class="hosp-mp-slider mb-3"
+               style="position:relative; width:100%; max-width:240px; border-radius:8px; overflow:hidden; background:#f1f3f5;">
+            {% if match.missing_person.passport_photo %}
+            <img src="{{ match.missing_person.passport_photo.url }}"
+                 class="hosp-slide-img"
+                 style="width:100%; height:200px; object-fit:cover; display:block; border-radius:8px;"
+                 alt="Passport photo">
+            {% endif %}
+            {% if match.missing_person.full_body_photo %}
+            <img src="{{ match.missing_person.full_body_photo.url }}"
+                 class="hosp-slide-img"
+                 style="width:100%; height:200px; object-fit:cover; display:none; border-radius:8px;"
+                 alt="Full body photo">
+            {% endif %}
+
+            <!-- dot indicators -->
+            <div style="position:absolute; bottom:6px; left:0; right:0; text-align:center;">
+              <span class="hosp-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:1;"></span>
+              <span class="hosp-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:0.4;"></span>
+            </div>
+            <div style="position:absolute;top:6px;left:6px;">
+              <span class="badge bg-dark" style="font-size:0.6rem;opacity:0.8;">Family Photos</span>
+            </div>
+          </div>
+          <div class="text-muted mb-2" style="font-size:0.7rem;">
+            <i class="bi bi-images me-1"></i>2 photos · auto-cycles every 2.5s
+          </div>
+
+          <!-- person details below slider -->
+          <div class="row g-1 small">
+            <div class="col-5 text-muted">Age</div><div class="col-7 fw-semibold">{{ match.missing_person.age }} yrs</div>
+            <div class="col-5 text-muted">Gender</div><div class="col-7 fw-semibold">{{ match.missing_person.get_gender_display }}</div>
+            <div class="col-5 text-muted">Blood Group</div><div class="col-7 fw-semibold">{{ match.missing_person.blood_group }}</div>
+            <div class="col-5 text-muted">Height / Weight</div><div class="col-7 fw-semibold">{{ match.missing_person.height }}cm / {{ match.missing_person.weight }}kg</div>
+            <div class="col-5 text-muted">Last Seen</div><div class="col-7 fw-semibold">{{ match.missing_person.last_seen_location }}, {{ match.missing_person.district }}</div>
+            {% if match.missing_person.identifying_marks %}
+            <div class="col-5 text-muted">Marks</div><div class="col-7">{{ match.missing_person.identifying_marks }}</div>
+            {% endif %}
+            {% if match.missing_person.clothing_description %}
+            <div class="col-5 text-muted">Clothing</div><div class="col-7">{{ match.missing_person.clothing_description }}</div>
+            {% endif %}
+          </div>
+
+          <!-- family contact box -->
+          <div class="mt-3 p-2 rounded" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+            <div class="small fw-semibold text-success mb-1">
+              <i class="bi bi-person-check me-1"></i>Contact (Report Filed By)
+            </div>
+            <div class="small">
+              <i class="bi bi-telephone me-1 text-muted"></i>
+              <strong>{{ match.missing_person.filer_contact }}</strong>
+              &nbsp;({{ match.missing_person.get_relation_display }})
+            </div>
+            {% if match.missing_person.filer_email %}
+            <div class="small mt-1">
+              <i class="bi bi-envelope me-1 text-muted"></i>{{ match.missing_person.filer_email }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- RIGHT: score + dismiss -->
+        <div class="col-md-3 text-center d-flex flex-column align-items-center justify-content-start pt-2">
+          <div style="font-size:2.8rem; font-weight:800; line-height:1;
+               color:{% if match.confidence_score >= 80 %}#198754{% elif match.confidence_score >= 60 %}#f59e0b{% else %}#6c757d{% endif %};">
+            {{ match.confidence_score }}%
+          </div>
+          <div class="badge bg-{{ match.confidence_label.1 }} mt-1 mb-2 px-3 py-1"
+               style="font-size:0.72rem;">
+            {{ match.confidence_label.0 }} MATCH
+          </div>
+          <div class="text-muted small mb-3">{{ match.created_at|date:"d M Y" }}</div>
+          <a href="{% url 'hospital:reject_match' match.pk %}"
+             class="btn btn-outline-secondary btn-sm px-3"
+             onclick="return confirm('Dismiss this match from your view?')">
+            Dismiss
+          </a>
+        </div>
+
+      </div><!-- end top row -->
+
+      <!-- ── SCORE BREAKDOWN ── -->
+      <div class="mt-4 pt-3" style="border-top:1px solid #e9ecef;">
+        <div class="small fw-semibold mb-3" style="color:#374151;">
+          <i class="bi bi-bar-chart-fill me-1 text-primary"></i>Match Score Breakdown
+          <span class="text-muted fw-normal ms-1">(factors that contributed to this match)</span>
+        </div>
+
+        {% if match.score_breakdown %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0" style="font-size:0.82rem;">
+            <thead>
+              <tr style="background:#f8fafc;">
+                <th style="width:30%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em;">Factor</th>
+                <th class="text-center" style="width:15%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase;">Max</th>
+                <th class="text-center" style="width:15%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase;">Scored</th>
+                <th style="width:40%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase;">Bar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% with b=match.score_breakdown %}
+              <tr>
+                <td><i class="bi bi-gender-ambiguous me-1 text-muted"></i>Gender</td>
+                <td class="text-center text-muted">20</td>
+                <td class="text-center">{% if b.gender %}<span class="badge bg-success">+{{ b.gender }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.gender %}#198754{% else %}#dee2e6{% endif %};width:{% if b.gender %}{{ b.gender|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-droplet me-1 text-muted"></i>Blood Group</td>
+                <td class="text-center text-muted">15</td>
+                <td class="text-center">{% if b.blood_group %}<span class="badge bg-success">+{{ b.blood_group }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.blood_group %}#198754{% else %}#dee2e6{% endif %};width:{% if b.blood_group %}{{ b.blood_group|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-calendar me-1 text-muted"></i>Age</td>
+                <td class="text-center text-muted">15</td>
+                <td class="text-center">{% if b.age %}<span class="badge bg-primary">+{{ b.age }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.age %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.age %}{{ b.age|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-arrows-vertical me-1 text-muted"></i>Height</td>
+                <td class="text-center text-muted">10</td>
+                <td class="text-center">{% if b.height %}<span class="badge bg-primary">+{{ b.height }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.height %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.height %}{{ b.height|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-geo-alt me-1 text-muted"></i>District</td>
+                <td class="text-center text-muted">10</td>
+                <td class="text-center">{% if b.district %}<span class="badge bg-success">+{{ b.district }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.district %}#198754{% else %}#dee2e6{% endif %};width:{% if b.district %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-body-text me-1 text-muted"></i>Marks</td>
+                <td class="text-center text-muted">10</td>
+                <td class="text-center">{% if b.marks %}<span class="badge bg-warning text-dark">+{{ b.marks }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.marks %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.marks %}{{ b.marks|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-person-standing me-1 text-muted"></i>Clothing</td>
+                <td class="text-center text-muted">10</td>
+                <td class="text-center">{% if b.clothing %}<span class="badge bg-warning text-dark">+{{ b.clothing }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.clothing %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.clothing %}{{ b.clothing|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              {% if b.face_match %}
+              <tr>
+                  <td><i class="bi bi-camera-fill me-1 text-muted"></i>Face Similarity</td>
+                  <td class="text-center text-muted">10</td>
+                  <td class="text-center">
+                      <span class="badge bg-success">+{{ b.face_match }}</span>
+                  </td>
+                  <td>
+                      <div style="background:#e9ecef;border-radius:4px;height:8px;">
+                          <div style="background:#198754;width:{{ b.face_match }}0%;height:8px;border-radius:4px;max-width:100%;"></div>
+                      </div>
+                  </td>
+              </tr>
+              {% endif %}
+              <tr>
+                <td><i class="bi bi-eye me-1 text-muted"></i>Eye Color</td>
+                <td class="text-center text-muted">5</td>
+                <td class="text-center">{% if b.eye_color %}<span class="badge bg-secondary">+{{ b.eye_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.eye_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.eye_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-person me-1 text-muted"></i>Hair Color</td>
+                <td class="text-center text-muted">5</td>
+                <td class="text-center">{% if b.hair_color %}<span class="badge bg-secondary">+{{ b.hair_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.hair_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.hair_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-palette me-1 text-muted"></i>Skin Tone</td>
+                <td class="text-center text-muted">5</td>
+                <td class="text-center">{% if b.skin_tone %}<span class="badge bg-secondary">+{{ b.skin_tone }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.skin_tone %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.skin_tone %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+              </tr>
+              <tr>
+                <td><i class="bi bi-circle me-1 text-muted"></i>Weight</td>
+                <td class="text-center text-muted">5</td>
+                <td class="text-center">{% if b.weight %}<span class="badge bg-secondary">+{{ b.weight }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.weight %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.weight %}{{ b.weight|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+              </tr>
+              {% endwith %}
+              <tr style="background:#f8fafc; border-top:2px solid #e9ecef;">
+                <td class="fw-bold">Total Score</td>
+                <td class="text-center text-muted fw-semibold">100</td>
+                <td class="text-center"><span class="badge bg-{{ match.confidence_label.1 }} px-2">{{ match.confidence_score }}%</span></td>
+                <td>
+                  <div style="background:#e9ecef;border-radius:4px;height:10px;">
+                    <div style="background:{% if match.confidence_score >= 80 %}#198754{% elif match.confidence_score >= 60 %}#f59e0b{% else %}#6c757d{% endif %};width:{{ match.confidence_score|floatformat:0 }}%;height:10px;border-radius:4px;"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted small mb-0">Score breakdown not available for this match.</p>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-bell-slash fs-1 d-block mb-3 opacity-50"></i>
+    <p class="fw-semibold">No match alerts at the moment.</p>
+    <p class="small">Alerts appear automatically when the system finds potential matches.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// hospital side: cycles through the 2 family-uploaded photos (passport + full body)
+document.querySelectorAll('.hosp-mp-slider').forEach(function(slider) {
+    var imgs = slider.querySelectorAll('.hosp-slide-img');
+    var dots = slider.querySelectorAll('.hosp-dot');
+    var current = 0;
+    if (imgs.length <= 1) return;
+    setInterval(function() {
+        imgs[current].style.display = 'none';
+        dots[current].style.opacity = '0.4';
+        current = (current + 1) % imgs.length;
+        imgs[current].style.display = 'block';
+        dots[current].style.opacity = '1';
+    }, 2500);
+});
+</script>
+{% endblock %}

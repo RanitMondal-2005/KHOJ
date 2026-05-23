@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Register - Hospital Staff{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-hospital-fill fs-4 text-success me-2"></i>
+                        <div>
+                            <h4 class="mb-0 fw-semibold">Hospital Staff Registration</h4>
+                            <small class="text-muted">Register your hospital and create a staff account</small>
+                        </div>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <p class="form-section-title">Personal Details</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name</label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}<div class="text-danger small">{{ form.full_name.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Staff ID</label>
+                                {{ form.staff_id }}
+                                {% if form.staff_id.errors %}<div class="text-danger small">{{ form.staff_id.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                            </div>
+                            
+                        </div>
+                        <p class="form-section-title">Hospital Details</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Hospital Name</label>
+                                {{ form.hospital_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Hospital Registration ID</label>
+                                {{ form.hospital_registration_id }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">District</label>
+                                {{ form.district }}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Emergency Contact</label>
+                                {{ form.emergency_contact }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Hospital Email</label>
+                                {{ form.hospital_email }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address</label>
+                                {{ form.address }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                {{ form.password }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password</label>
+                                {{ form.confirm_password }}
+                            </div>
+                        </div>
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger small py-2 mt-3">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-success w-100">Register as Hospital Staff</button>
+                    </form>
+                    <p class="text-center text-muted small mt-3 mb-0">
+                        <a href="{% url 'register_choice' %}">← Back to role selection</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

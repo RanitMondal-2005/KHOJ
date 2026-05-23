@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}My Reports{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 fw-semibold">My Missing Reports</h4>
+    <a href="{% url 'family:add_report' %}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Report</a>
+  </div>
+  {% if reports %}
+  <div class="row g-3">
+    {% for report in reports %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 match-card">
+        <div class="card-body">
+          <div class="d-flex gap-3 mb-3">
+            {% if report.passport_photo %}
+            <img src="{{ report.passport_photo.url }}" class="photo-thumb" alt="">
+            {% endif %}
+            <div>
+              <h6 class="mb-1 fw-semibold">{{ report.person_name }}</h6>
+              <span class="badge badge-active">ACTIVE</span>
+            </div>
+          </div>
+          <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>{{ report.last_seen_location }}</div>
+          <div class="small text-muted mb-1"><i class="bi bi-calendar me-1"></i>Last seen: {{ report.last_seen_date }}</div>
+          <div class="small text-muted"><i class="bi bi-person me-1"></i>{{ report.gender }}, {{ report.age }} yrs</div>
+        </div>
+        <div class="card-footer bg-white border-top-0 d-flex gap-2">
+          <a href="{% url 'family:report_detail' report.pk %}" class="btn btn-sm btn-outline-primary flex-grow-1">View Details</a>
+          <a href="{% url 'family:add_case_update' report.pk %}" class="btn btn-sm btn-outline-secondary">+ Update</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-folder2-open fs-1 d-block mb-3"></i>
+    <p>You have no active missing person reports.</p>
+    <a href="{% url 'family:add_report' %}" class="btn btn-primary">File a Report</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

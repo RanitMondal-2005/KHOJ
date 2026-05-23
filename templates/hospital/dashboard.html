@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Hospital Dashboard{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="mb-0 fw-semibold">Welcome, {{ user.full_name }}</h4>
+      <small class="text-muted">{{ user.hospital_profile.hospital_name }} &middot; {{ user.hospital_profile.district }}</small>
+    </div>
+    <a href="{% url 'hospital:add_patient' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Patient</a>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-warning h-100"><div class="card-body py-3">
+        <div class="text-muted small">Unidentified</div>
+        <div class="fs-3 fw-bold text-warning">{{ active_count }}</div>
+        <div class="text-muted small">patients</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-primary h-100"><div class="card-body py-3">
+        <div class="text-muted small">Match Alerts</div>
+        <div class="fs-3 fw-bold text-primary">{{ recent_matches|length }}</div>
+        <div class="text-muted small">pending</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-success h-100"><div class="card-body py-3">
+        <div class="text-muted small">Resolved</div>
+        <div class="mt-1"><a href="{% url 'hospital:resolved_patients' %}" class="btn btn-outline-success btn-sm">View</a></div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-secondary h-100"><div class="card-body py-3">
+        <div class="text-muted small">Emergency</div>
+        <div class="small fw-semibold mt-1">{{ user.hospital_profile.emergency_contact }}</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">Active Patients</span>
+          <a href="{% url 'hospital:view_patients' %}" class="btn btn-sm btn-outline-warning">All</a>
+        </div>
+        <div class="card-body p-0">
+          {% if active_patients %}
+          <ul class="list-group list-group-flush">
+            {% for patient in active_patients %}
+            <li class="list-group-item py-3 d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold small">{{ patient.estimated_name|default:"Unknown" }}</div>
+                <div class="text-muted small">{{ patient.district }} &middot; {{ patient.admission_date }}</div>
+              </div>
+              <a href="{% url 'hospital:patient_detail' patient.pk %}" class="btn btn-sm btn-outline-secondary">View</a>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="text-center text-muted py-5 small"><i class="bi bi-person-x fs-3 d-block mb-2"></i>No active patients.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">Match Alerts</span>
+          <a href="{% url 'hospital:match_alerts' %}" class="btn btn-sm btn-outline-primary">All</a>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_matches %}
+          <ul class="list-group list-group-flush">
+            {% for match in recent_matches %}
+            <li class="list-group-item py-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold small">{{ match.unidentified_patient.estimated_name|default:"Unknown" }}</div>
+                  <div class="text-muted small">Possible: {{ match.missing_person.district }}</div>
+                </div>
+                <span class="badge bg-{{ match.confidence_label.1 }}">{{ match.confidence_score }}%</span>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="text-center text-muted py-5 small"><i class="bi bi-bell-slash fs-3 d-block mb-2"></i>No alerts yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

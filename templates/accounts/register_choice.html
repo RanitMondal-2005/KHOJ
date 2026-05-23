@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h3 class="text-center mb-2 fw-semibold">Register on Khoj</h3>
+            <p class="text-center text-muted mb-5">Select your role to continue</p>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <a href="{% url 'register_family' %}" class="text-decoration-none">
+                        <div class="card h-100 text-center p-4 shadow-sm border-0 hover-card">
+                            <div class="fs-1 text-primary mb-3"><i class="bi bi-people-fill"></i></div>
+                            <h5 class="fw-semibold">Family Member</h5>
+                            <p class="text-muted small">
+                                Register to file missing person reports and track matches for your loved ones.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'register_hospital' %}" class="text-decoration-none">
+                        <div class="card h-100 text-center p-4 shadow-sm border-0">
+                            <div class="fs-1 text-success mb-3"><i class="bi bi-hospital-fill"></i></div>
+                            <h5 class="fw-semibold">Hospital Staff</h5>
+                            <p class="text-muted small">
+                                Register to upload unidentified patient records and receive family match alerts.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'register_police' %}" class="text-decoration-none">
+                        <div class="card h-100 text-center p-4 shadow-sm border-0">
+                            <div class="fs-1 text-danger mb-3"><i class="bi bi-shield-fill"></i></div>
+                            <h5 class="fw-semibold">Police Officer</h5>
+                            <p class="text-muted small">
+                                Register to explore regional missing cases and use Khoj as an investigation support tool.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <p class="text-center text-muted small mt-4">
+                Already have an account? <a href="{% url 'login' %}">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

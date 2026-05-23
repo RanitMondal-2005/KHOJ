@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-1 fw-semibold">Sign In to Khoj</h4>
+                    <p class="text-muted small mb-4">Families, Hospital Staff, and Police Officers</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            {{ form.password }}
+                        </div>
+                        {% if form.errors %}
+                        <div class="alert alert-danger small py-2">Invalid email or password.</div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-dark w-100">Login</button>
+                    </form>
+
+                    <hr>
+                    <p class="text-center text-muted small mb-0">
+                        Don't have an account? <a href="{% url 'register_choice' %}">Register here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

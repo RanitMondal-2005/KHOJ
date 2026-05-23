@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Patients{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 fw-semibold">Unidentified Patients</h4>
+    <a href="{% url 'hospital:add_patient' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Patient</a>
+  </div>
+  {% if patients %}
+  <div class="row g-3">
+    {% for patient in patients %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 match-card">
+        <div class="card-body">
+          <div class="d-flex gap-3 mb-3">
+            {% if patient.face_image %}
+            <img src="{{ patient.face_image.url }}" class="photo-thumb" alt="">
+            {% endif %}
+            <div>
+              <h6 class="mb-1 fw-semibold">{{ patient.estimated_name|default:"Unknown" }}</h6>
+              <span class="badge bg-warning text-dark">UNIDENTIFIED</span>
+            </div>
+          </div>
+          <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>{{ patient.found_location }}</div>
+          <div class="small text-muted mb-1"><i class="bi bi-calendar me-1"></i>Admitted: {{ patient.admission_date }}</div>
+          <div class="small text-muted"><i class="bi bi-person me-1"></i>{{ patient.get_gender_display }}, ~{{ patient.age }} yrs</div>
+        </div>
+        <div class="card-footer bg-white border-top-0">
+          <a href="{% url 'hospital:patient_detail' patient.pk %}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-person-x fs-1 d-block mb-3"></i>
+    <p>No active unidentified patients.</p>
+    <a href="{% url 'hospital:add_patient' %}" class="btn btn-success">Add Patient Record</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}{{ report.person_name }} - Report{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <a href="{% url 'family:my_reports' %}" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Reports</a>
+
+  <div class="row g-4 mt-1">
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body text-center">
+          {% if report.passport_photo %}
+          <img src="{{ report.passport_photo.url }}" class="photo-thumb-lg mb-3" alt="Photo">
+          {% endif %}
+          <h5 class="fw-semibold mb-1">{{ report.person_name }}</h5>
+          <span class="badge bg-primary">{{ report.status }}</span>
+          <hr>
+          <div class="text-start small">
+            <div class="row g-1">
+              <div class="col-5 text-muted">Age</div><div class="col-7">{{ report.age }} yrs</div>
+              <div class="col-5 text-muted">Gender</div><div class="col-7">{{ report.get_gender_display }}</div>
+              <div class="col-5 text-muted">Height</div><div class="col-7">{{ report.height }} cm</div>
+              <div class="col-5 text-muted">Weight</div><div class="col-7">{{ report.weight }} kg</div>
+              <div class="col-5 text-muted">Blood Grp</div><div class="col-7">{{ report.blood_group }}</div>
+              <div class="col-5 text-muted">Eyes</div><div class="col-7">{{ report.eye_color|default:"-" }}</div>
+              <div class="col-5 text-muted">Hair</div><div class="col-7">{{ report.hair_color|default:"-" }}</div>
+              <div class="col-5 text-muted">Skin</div><div class="col-7">{{ report.get_skin_tone_display }}</div>
+            </div>
+          </div>
+        </div>
+        {% if report.full_body_photo %}
+        <div class="card-footer bg-white text-center">
+          <img src="{{ report.full_body_photo.url }}" class="photo-thumb-lg" alt="Full body photo">
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <div class="card mt-3">
+        <div class="card-body">
+          <p class="fw-semibold small mb-2">Actions</p>
+          <a href="{% url 'family:add_case_update' report.pk %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+            <i class="bi bi-pencil me-1"></i>Add Update / Clue
+          </a>
+          {% if report.status == 'ACTIVE' %}
+          <a href="{% url 'family:close_case' report.pk %}" class="btn btn-outline-danger btn-sm w-100">
+            <i class="bi bi-x-circle me-1"></i>Close / Mark Found
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <!-- Location & Details -->
+      <div class="card mb-3">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3">Location & Details</h6>
+          <div class="row g-2 small">
+            <div class="col-md-6">
+              <span class="text-muted">Last Seen:</span> {{ report.last_seen_location }}
+            </div>
+            <div class="col-md-3">
+              <span class="text-muted">District:</span> {{ report.district }}
+            </div>
+            <div class="col-md-3">
+              <span class="text-muted">Date:</span> {{ report.last_seen_date }}
+            </div>
+            {% if report.identifying_marks %}
+            <div class="col-12">
+              <span class="text-muted">Identifying Marks:</span> {{ report.identifying_marks }}
+            </div>
+            {% endif %}
+            {% if report.clothing_description %}
+            <div class="col-12">
+              <span class="text-muted">Clothing:</span> {{ report.clothing_description }}
+            </div>
+            {% endif %}
+            {% if report.fir_number %}
+            <div class="col-md-6"><span class="text-muted">FIR No.:</span> {{ report.fir_number }}</div>
+            {% endif %}
+            {% if report.police_station_name %}
+            <div class="col-md-6"><span class="text-muted">Police Station:</span> {{ report.police_station_name }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Matches -->
+      <div class="card mb-3">
+        <div class="card-header bg-white fw-semibold">Potential Matches ({{ matches|length }})</div>
+        <div class="card-body p-0">
+          {% if matches %}
+          <div class="list-group list-group-flush">
+            {% for match in matches %}
+            <div class="list-group-item py-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-semibold small">
+                    Patient at {{ match.unidentified_patient.linked_hospital.hospital_profile.hospital_name|default:"Hospital" }}
+                  </div>
+                  <div class="text-muted small">
+                    {{ match.unidentified_patient.district }} &middot;
+                    Admitted {{ match.unidentified_patient.admission_date }} &middot;
+                    {{ match.unidentified_patient.get_gender_display }}, ~{{ match.unidentified_patient.age }} yrs
+                  </div>
+                  <!-- Hospital contact details only shown when a match exists -->
+                  <div class="mt-1 small text-success">
+                    <i class="bi bi-telephone me-1"></i>
+                    Emergency: {{ match.unidentified_patient.linked_hospital.hospital_profile.emergency_contact }}
+                    &nbsp;&middot;&nbsp;
+                    {{ match.unidentified_patient.linked_hospital.hospital_profile.district }}
+                  </div>
+                </div>
+                <div class="text-end ms-2">
+                  <span class="badge bg-{{ match.confidence_label.1 }} d-block mb-1">{{ match.confidence_score }}%</span>
+                  <span class="text-muted" style="font-size:0.7rem;">{{ match.confidence_label.0 }}</span>
+                  <div class="mt-1">
+                    <a href="{% url 'family:reject_match' match.pk %}" class="btn btn-outline-secondary btn-sm"
+                       onclick="return confirm('Dismiss this match?')">Dismiss</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-muted text-center py-4 small">No matches found yet. Matching runs automatically.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Case Updates Timeline -->
+      <div class="card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">Search Updates & Clues</span>
+          <a href="{% url 'family:add_case_update' report.pk %}" class="btn btn-sm btn-outline-primary">+ Add</a>
+        </div>
+        <div class="card-body">
+          {% if updates %}
+          {% for update in updates %}
+          <div class="update-item">
+            <div class="text-muted small mb-1">{{ update.created_at|date:"d M Y, h:i A" }}</div>
+            <p class="mb-1 small">{{ update.note }}</p>
+            {% if update.optional_image %}
+            <img src="{{ update.optional_image.url }}" class="photo-thumb" alt="update image">
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="text-muted small mb-0">No updates yet. Add clues or search progress to keep track.</p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

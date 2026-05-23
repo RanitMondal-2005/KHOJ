@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Close Case{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:500px;">
+  <h4 class="fw-semibold mb-1">Close Case: {{ report.person_name }}</h4>
+  <p class="text-muted small mb-4">Select the appropriate resolution status for this case.</p>
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-grid gap-3">
+          <button type="submit" name="action" value="FOUND" class="btn btn-success btn-lg">
+            <i class="bi bi-check-circle me-2"></i>Mark as FOUND
+            <div class="small fw-normal">{{ report.person_name }} has been located</div>
+          </button>
+          <button type="submit" name="action" value="CLOSED" class="btn btn-outline-secondary btn-lg"
+                  onclick="return confirm('Close this case without marking as found?')">
+            <i class="bi bi-archive me-2"></i>Close Case
+            <div class="small fw-normal">Investigation ended, case unresolved</div>
+          </button>
+        </div>
+      </form>
+      <a href="{% url 'family:report_detail' report.pk %}" class="btn btn-link text-muted mt-3 w-100">Cancel</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

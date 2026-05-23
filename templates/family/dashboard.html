@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}Family Dashboard{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0 fw-semibold">Welcome, {{ user.full_name }}</h4>
+            <small class="text-muted">Family Dashboard</small>
+        </div>
+        <a href="{% url 'family:add_report' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i>New Report
+        </a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="card stat-card border-primary shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Active Cases</div>
+                            <div class="fs-3 fw-bold">{{ active_count }}</div>
+                        </div>
+                        <i class="bi bi-person-exclamation fs-2 text-primary opacity-50"></i>
+                    </div>
+                    {% if active_count >= 3 %}
+                    <div class="badge bg-warning text-dark mt-1">Limit reached (max 3)</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card stat-card border-warning shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Pending Matches</div>
+                            <div class="fs-3 fw-bold">{{ recent_matches|length }}</div>
+                        </div>
+                        <i class="bi bi-diagram-3 fs-2 text-warning opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card stat-card border-success shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small">Notifications</div>
+                            <div class="fs-3 fw-bold">{{ unread_count }}</div>
+                        </div>
+                        <i class="bi bi-bell fs-2 text-success opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Active Reports -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Active Reports</span>
+                    <a href="{% url 'family:my_reports' %}" class="btn btn-outline-secondary btn-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if active_reports %}
+                    <ul class="list-group list-group-flush">
+                        {% for report in active_reports %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex gap-3 align-items-center">
+                                    {% if report.passport_photo %}
+                                    <img src="{{ report.passport_photo.url }}" class="photo-thumb" alt="photo">
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-semibold">{{ report.person_name }}</div>
+                                        <small class="text-muted">{{ report.district }} &bull; Last seen {{ report.last_seen_date }}</small>
+                                    </div>
+                                </div>
+                                <a href="{% url 'family:report_detail' report.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-clipboard-x fs-3 d-block mb-2 opacity-50"></i>
+                        No active reports. <a href="{% url 'family:add_report' %}">File one now</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Matches -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">Recent Matches</span>
+                    <a href="{% url 'family:my_matches' %}" class="btn btn-outline-secondary btn-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_matches %}
+                    <ul class="list-group list-group-flush">
+                        {% for match in recent_matches %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold small">{{ match.missing_person.person_name }}</div>
+                                    <small class="text-muted">{{ match.unidentified_patient.linked_hospital.hospital_profile.hospital_name }} &bull; {{ match.unidentified_patient.district }}</small>
+                                </div>
+                                <span class="badge {% if match.confidence_score >= 80 %}bg-success{% elif match.confidence_score >= 60 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                    {{ match.confidence_score }}%
+                                </span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-search fs-3 d-block mb-2 opacity-50"></i>
+                        No matches found yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3 mt-2">
+        <div class="col-6 col-md-3">
+            <a href="{% url 'family:add_report' %}" class="btn btn-outline-primary w-100">
+                <i class="bi bi-plus-circle d-block fs-4 mb-1"></i>Add Report
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'family:my_matches' %}" class="btn btn-outline-warning w-100">
+                <i class="bi bi-diagram-3 d-block fs-4 mb-1"></i>My Matches
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'notifications:list' %}" class="btn btn-outline-success w-100">
+                <i class="bi bi-bell d-block fs-4 mb-1"></i>Notifications
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'family:archived_cases' %}" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-archive d-block fs-4 mb-1"></i>Archived
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

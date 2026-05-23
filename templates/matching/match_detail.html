@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Match Detail{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:800px;">
+  <h4 class="fw-semibold mb-4">Match Detail</h4>
+  <div class="row g-4">
+    <div class="col-md-5">
+      <div class="card h-100">
+        <div class="card-header bg-white fw-semibold">Missing Person</div>
+        <div class="card-body small">
+          <div class="fw-semibold fs-6 mb-2">{{ match.missing_person.person_name }}</div>
+          <div class="row g-1">
+            <div class="col-5 text-muted">Age</div><div class="col-7">{{ match.missing_person.age }}</div>
+            <div class="col-5 text-muted">Gender</div><div class="col-7">{{ match.missing_person.get_gender_display }}</div>
+            <div class="col-5 text-muted">District</div><div class="col-7">{{ match.missing_person.district }}</div>
+            <div class="col-5 text-muted">Blood Grp</div><div class="col-7">{{ match.missing_person.blood_group }}</div>
+            <div class="col-5 text-muted">Height</div><div class="col-7">{{ match.missing_person.height }} cm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 d-flex align-items-center justify-content-center">
+      <div class="text-center">
+        <div class="fs-3 fw-bold text-{{ match.confidence_label.1 }}">{{ match.confidence_score }}%</div>
+        <div class="badge bg-{{ match.confidence_label.1 }}">{{ match.confidence_label.0 }}</div>
+      </div>
+    </div>
+    <div class="col-md-5">
+      <div class="card h-100">
+        <div class="card-header bg-white fw-semibold">Unidentified Patient</div>
+        <div class="card-body small">
+          <div class="fw-semibold fs-6 mb-2">{{ match.unidentified_patient.estimated_name|default:"Unknown" }}</div>
+          <div class="row g-1">
+            <div class="col-5 text-muted">Age (est.)</div><div class="col-7">~{{ match.unidentified_patient.age }}</div>
+            <div class="col-5 text-muted">Gender</div><div class="col-7">{{ match.unidentified_patient.get_gender_display }}</div>
+            <div class="col-5 text-muted">District</div><div class="col-7">{{ match.unidentified_patient.district }}</div>
+            <div class="col-5 text-muted">Blood Grp</div><div class="col-7">{{ match.unidentified_patient.blood_group }}</div>
+            <div class="col-5 text-muted">Height</div><div class="col-7">{{ match.unidentified_patient.height }} cm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

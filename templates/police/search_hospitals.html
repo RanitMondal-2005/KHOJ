@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Search Hospitals{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h4 class="fw-semibold mb-1">Hospital Directory</h4>
+  <p class="text-muted small mb-3">Find hospitals in your region for case coordination.</p>
+  <form method="get" class="d-flex gap-2 mb-4">
+    <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="Search by hospital name or district...">
+    <button type="submit" class="btn btn-primary btn-sm px-3">Search</button>
+    {% if query %}<a href="{% url 'police:search_hospitals' %}" class="btn btn-outline-secondary btn-sm">Clear</a>{% endif %}
+  </form>
+  {% if hospitals %}
+  <div class="row g-3">
+    {% for hosp in hospitals %}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-1"><i class="bi bi-hospital me-1 text-success"></i>{{ hosp.hospital_name }}</h6>
+          <div class="text-muted small mb-2">{{ hosp.district }} district</div>
+          <div class="small mb-1"><i class="bi bi-telephone me-1"></i>{{ hosp.emergency_contact }}</div>
+          <div class="small mb-1"><i class="bi bi-envelope me-1"></i>{{ hosp.hospital_email }}</div>
+          <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>{{ hosp.address }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-hospital fs-1 d-block mb-2"></i>
+    {% if query %}No hospitals found for "{{ query }}"{% else %}No hospitals registered in {{ district }} district yet.{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

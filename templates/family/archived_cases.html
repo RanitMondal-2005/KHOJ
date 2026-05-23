@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Archived Cases{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h4 class="fw-semibold mb-4">Archived Cases</h4>
+  {% if cases %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Person</th><th>District</th><th>Last Seen</th><th>Status</th><th>Closed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for case in cases %}
+        <tr>
+          <td class="fw-semibold">{{ case.person_name }}</td>
+          <td>{{ case.district }}</td>
+          <td>{{ case.last_seen_date }}</td>
+          <td>
+            {% if case.status == 'FOUND' %}
+            <span class="badge bg-success">FOUND</span>
+            {% else %}
+            <span class="badge bg-secondary">CLOSED</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ case.updated_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-archive fs-1 d-block mb-2"></i>No archived cases yet.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Police Dashboard{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4">
+    <h4 class="mb-0 fw-bold">Welcome, {{ user.full_name }}</h4>
+    <small class="text-muted">{{ police_station }} &middot; {{ district }} District</small>
+  </div>
+
+  <div class="alert alert-secondary small mb-4">
+    <i class="bi bi-info-circle me-1"></i>
+    Khoj is an investigation support tool. Regional Cases shows unidentified patients
+    reported by hospitals in your area. Use Matches to see potential case links.
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-warning h-100">
+        <div class="card-body py-3">
+          <div class="text-muted small">Unidentified Patients</div>
+          <div class="fs-3 fw-bold text-warning">{{ regional_patients_count }}</div>
+          <div class="text-muted small">in {{ district }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-primary h-100">
+        <div class="card-body py-3">
+          <div class="text-muted small">Regional Matches</div>
+          <div class="fs-3 fw-bold text-primary">{{ regional_matches_count }}</div>
+          <div class="text-muted small">in your area</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <a href="{% url 'police:regional_cases' %}" class="card text-decoration-none h-100 match-card">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-person-x fs-2 text-warning mb-2 d-block"></i>
+          <div class="fw-semibold">Regional Cases</div>
+          <div class="text-muted small">Unidentified patients in your district</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'police:nearby_matches' %}" class="card text-decoration-none h-100 match-card">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-diagram-3 fs-2 text-primary mb-2 d-block"></i>
+          <div class="fw-semibold">Nearby Matches</div>
+          <div class="text-muted small">Potential case matches in your region</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'police:search_hospitals' %}" class="card text-decoration-none h-100 match-card">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-hospital fs-2 text-success mb-2 d-block"></i>
+          <div class="fw-semibold">Search Hospitals</div>
+          <div class="text-muted small">Hospital contacts in your district</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'police:archived_cases' %}" class="card text-decoration-none h-100 match-card">
+        <div class="card-body text-center py-4">
+          <i class="bi bi-archive fs-2 text-secondary mb-2 d-block"></i>
+          <div class="fw-semibold">Archived Cases</div>
+          <div class="text-muted small">Identified patients in your district</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

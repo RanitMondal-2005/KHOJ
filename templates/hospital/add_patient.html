@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Add Patient{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:820px;">
+
+  <a href="{% url 'hospital:view_patients' %}" class="text-muted small">
+    <i class="bi bi-arrow-left me-1"></i>Back to Patients
+  </a>
+  <h4 class="fw-bold mt-2 mb-1">Add Unidentified Patient Record</h4>
+  <p class="text-muted small mb-4">Fill in as many details as possible to improve match accuracy.</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- physical description -->
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-person me-2 text-primary"></i>Physical Description
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Patient Name <span class="text-muted fw-normal">(if known)</span></label>
+            {{ form.estimated_name }}
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Age (est.) *</label>{{ form.age }}
+            {% if form.age.errors %}<div class="text-danger small mt-1">{{ form.age.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Gender *</label>{{ form.gender }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Height (cm) *</label>{{ form.height }}
+            {% if form.height.errors %}<div class="text-danger small mt-1">{{ form.height.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Weight (kg) *</label>{{ form.weight }}
+            {% if form.weight.errors %}<div class="text-danger small mt-1">{{ form.weight.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Blood Group</label>{{ form.blood_group }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Skin Tone</label>{{ form.skin_tone }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Eye Color</label>{{ form.eye_color }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Hair Color</label>{{ form.hair_color }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Identifying Marks</label>{{ form.identifying_marks }}
+          </div>
+          <!-- clothing - compulsory, helps matching against family report -->
+          <div class="col-12">
+            <label class="form-label">
+              Clothing When Found *
+              <span class="text-muted fw-normal small">(what the patient was wearing)</span>
+            </label>
+            {{ form.clothing_description }}
+            {% if form.clothing_description.errors %}
+            <div class="text-danger small mt-1">{{ form.clothing_description.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ID found on person -->
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-credit-card me-2 text-success"></i>
+        ID Found on Person
+        <span class="text-muted fw-normal small ms-1">(from wallet or belongings — optional)</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">ID Type</label>
+            {{ form.found_id_type }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">
+              Last 4 Digits of ID
+              <span class="text-muted fw-normal small">(do not enter full number)</span>
+            </label>
+            {{ form.found_id_last4 }}
+            {% if form.found_id_last4.errors %}
+            <div class="text-danger small mt-1">{{ form.found_id_last4.errors.0 }}</div>
+            {% endif %}
+            <div class="form-text">Only last 4 digits are stored for privacy.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- admission details -->
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-hospital me-2 text-warning"></i>Admission Details
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label">Found Location *</label>{{ form.found_location }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">District *</label>{{ form.district }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Admission Date *</label>{{ form.admission_date }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Condition / Notes</label>{{ form.condition_notes }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- photos -->
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-images me-2 text-danger"></i>Photos
+        <span class="text-muted fw-normal small ms-1">(all 3 required)</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Face / Front Photo *</label>{{ form.face_image }}
+            {% if form.face_image.errors %}<div class="text-danger small mt-1">{{ form.face_image.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Full Body Photo *</label>{{ form.full_body_image }}
+            {% if form.full_body_image.errors %}<div class="text-danger small mt-1">{{ form.full_body_image.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Side / Profile Photo *</label>{{ form.side_profile_image }}
+            {% if form.side_profile_image.errors %}<div class="text-danger small mt-1">{{ form.side_profile_image.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <div class="alert alert-info small">
+      <i class="bi bi-info-circle me-1"></i>
+      Matching runs automatically after submission. Hospital staff and family users will be notified if a match is found.
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-success px-4 fw-semibold">
+        <i class="bi bi-upload me-1"></i>Upload Patient Record
+      </button>
+      <a href="{% url 'hospital:dashboard' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
