@@ -1,3 +1,10 @@
-Django>=5.0
-Pillow>=10.0.0
-python-dotenv>=1.0.0
+asgiref==3.11.1
+click==8.4.0
+Django==6.0.5
+ImageHash==4.3.2
+numpy==2.4.6
+pillow==10.4.0
+python-dotenv==1.2.2
+PyWavelets==1.9.0
+scipy==1.17.1
+sqlparse==0.5.5

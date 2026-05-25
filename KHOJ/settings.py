@@ -1,18 +1,18 @@
-"""
-KHOJ - Missing Person & Unidentified Patient Coordination Platform
-Django Settings
-"""
-
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-khoj-dev-key-change-in-production-2024'
+# load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
+# these all come from .env now — never hardcode secrets in code
+SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-key-only-for-emergencies')
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -102,4 +102,4 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Matching engine threshold
-MATCH_CONFIDENCE_THRESHOLD = 40
+MATCH_CONFIDENCE_THRESHOLD = int(os.getenv('MATCH_CONFIDENCE_THRESHOLD', '40'))
