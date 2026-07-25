@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<!-- page header banner - dark bg like the hero but shorter -->
+<!-- Banner: shorter version of the hero -->
 <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 3.5rem 0 3rem;">
     <div class="container">
         <div class="row justify-content-center text-center">
@@ -29,10 +29,9 @@
 
 <div class="container py-5" style="max-width:860px;">
 
-    <!-- ── THE PROBLEM ──────────────────────────────────────────── -->
+    <!-- THE PROBLEM -->
     <div class="row g-4 align-items-center mb-5">
         <div class="col-md-5">
-            <!-- icon block -->
             <div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:14px; padding:2rem; text-align:center;">
                 <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size:2.5rem;"></i>
                 <div class="fw-semibold mt-3 mb-1">The Problem</div>
@@ -57,10 +56,9 @@
         </div>
     </div>
 
-    <!-- divider -->
     <hr style="border-color:#e3e8ef; margin-bottom:3rem;">
 
-    <!-- ── WHAT KHOJ DOES ────────────────────────────────────────── -->
+    <!-- WHAT KHOJ DOES — 4 feature cards -->
     <h4 class="fw-bold mb-4" style="letter-spacing:-0.02em;">What Khoj Does</h4>
     <div class="row g-3 mb-5">
 
@@ -72,8 +70,9 @@
                 <div>
                     <div class="fw-semibold small mb-1">Missing Person Reports</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        Families register and file detailed missing person reports with
-                        physical descriptions, photos, and last known location.
+                        Families file detailed reports with physical description, Aadhaar number,
+                        clothing, photos, relation to the missing person, and last known location.
+                        Max 3 active cases per family user.
                     </div>
                 </div>
             </div>
@@ -87,8 +86,9 @@
                 <div>
                     <div class="fw-semibold small mb-1">Unidentified Patient Records</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        Hospital staff upload records for unidentified patients with
-                        estimated physical details and photos.
+                        Hospital staff upload patient records with 3 required photos (face, full body,
+                        side profile), clothing description, and any ID found on the person
+                        — last 4 digits only, for privacy.
                     </div>
                 </div>
             </div>
@@ -102,8 +102,9 @@
                 <div>
                     <div class="fw-semibold small mb-1">Automatic Matching</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        The matching engine compares reports against patient records and
-                        generates a confidence score. High-scoring matches are flagged.
+                        Django signals trigger the matching engine on every save.
+                        Reports are scored against all patient records across 12 weighted factors.
+                        Matches above 40% confidence are stored with a full per-field breakdown.
                     </div>
                 </div>
             </div>
@@ -117,8 +118,9 @@
                 <div>
                     <div class="fw-semibold small mb-1">Police Investigation Support</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        Police officers can browse regional cases, nearby matches, and
-                        hospital contacts as a support tool for ongoing investigations.
+                        Police browse unidentified patient records and matches in their district.
+                        Read-only access — no moderation or admin privileges.
+                        Hospital contact visible with minimal details only.
                     </div>
                 </div>
             </div>
@@ -126,20 +128,21 @@
 
     </div>
 
-    <!-- ── THE MATCHING ENGINE ───────────────────────────────────── -->
+    <!-- MATCHING ENGINE SECTION -->
     <h4 class="fw-bold mb-3" style="letter-spacing:-0.02em;">How the Matching Engine Works</h4>
     <p class="text-muted mb-4">
         Khoj uses a <strong>weighted rule-based scoring system</strong> — no AI, no machine learning.
         Every factor is transparent and explainable. A missing person report is compared against
-        each unidentified patient record across the following criteria:
+        each unidentified patient record across 12 criteria. The per-field score is stored with
+        every match so you can see exactly why it was flagged.
     </p>
 
-    <!-- scoring table -->
+    <!-- Scoring Table -->
     <div class="table-responsive mb-5">
         <table class="table table-bordered align-middle" style="font-size:0.87rem;">
             <thead style="background:#f8fafc;">
                 <tr>
-                    <th style="width:55%;">Matching Factor</th>
+                    <th style="width:50%;">Matching Factor</th>
                     <th class="text-center">Points</th>
                     <th>Logic</th>
                 </tr>
@@ -173,56 +176,75 @@
                 <tr>
                     <td><i class="bi bi-body-text me-2 text-muted"></i>Identifying Marks</td>
                     <td class="text-center fw-semibold text-primary">up to 10</td>
-                    <td class="text-muted small">Keyword overlap scoring</td>
+                    <td class="text-muted small">Jaccard keyword overlap on marks text</td>
                 </tr>
                 <tr>
-                    <td><i class="bi bi-eye me-2 text-muted"></i>Eye / Hair / Skin</td>
-                    <td class="text-center fw-semibold text-primary">5 each</td>
+                    <td><i class="bi bi-person-standing me-2 text-muted"></i>Clothing Description</td>
+                    <td class="text-center fw-semibold text-primary">up to 10</td>
+                    <td class="text-muted small">Jaccard keyword overlap on clothing text</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-camera me-2 text-muted"></i>Photo Similarity</td>
+                    <td class="text-center fw-semibold text-primary">up to 10</td>
+                    <td class="text-muted small">Perceptual hash distance (imagehash)</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-eye me-2 text-muted"></i>Eye Color</td>
+                    <td class="text-center fw-semibold text-primary">5</td>
                     <td class="text-muted small">Exact text match</td>
                 </tr>
                 <tr>
-                    <td><i class="bi bi-person me-2 text-muted"></i>Weight</td>
+                    <td><i class="bi bi-person me-2 text-muted"></i>Hair Color</td>
+                    <td class="text-center fw-semibold text-primary">5</td>
+                    <td class="text-muted small">Exact text match</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-palette me-2 text-muted"></i>Skin Tone</td>
+                    <td class="text-center fw-semibold text-primary">5</td>
+                    <td class="text-muted small">Exact match</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-circle me-2 text-muted"></i>Weight</td>
                     <td class="text-center fw-semibold text-primary">up to 5</td>
                     <td class="text-muted small">±5 kg = 5, ±10 = 3</td>
                 </tr>
+                <!-- total row -->
                 <tr style="background:#f8fafc;">
                     <td class="fw-semibold">Total Maximum Score</td>
                     <td class="text-center fw-bold text-success">100</td>
-                    <td class="text-muted small">Threshold: 40+ to be stored</td>
+                    <td class="text-muted small">Threshold: 40+ to be stored &nbsp;·&nbsp; Score capped at 100</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- ── WHAT KHOJ DOES NOT DO ─────────────────────────────────── -->
+    <!-- WHAT KHOJ DOES NOT DO -->
     <h4 class="fw-bold mb-3" style="letter-spacing:-0.02em;">What Khoj Does NOT Do</h4>
-    <div class="row g-2 mb-5">
-        <!-- each "does not" item as a simple row -->
-        {% for item in "1234"|make_list %}
-        {% endfor %}
-        <div class="col-12">
-            <div class="d-flex flex-column gap-2">
-                <div class="d-flex align-items-start gap-2 small text-muted">
-                    <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                    <span>It is <strong class="text-dark">not</strong> an official police or government system.(But planning to integrate with official systems in the future.)</span>
-                </div>
-
-                <div class="d-flex align-items-start gap-2 small text-muted">
-                    <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                    <span>It does <strong class="text-dark">not</strong> replace FIR filing or official missing person processes.</span>
-                </div>
-                <div class="d-flex align-items-start gap-2 small text-muted">
-                    <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                    <span>It does <strong class="text-dark">not</strong> verify institutional IDs through external government APIs (planned for future).</span>
-                </div>
-                <div class="d-flex align-items-start gap-2 small text-muted">
-                    <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                    <span>It does <strong class="text-dark">not</strong> use AI or machine learning — all matching logic is transparent and rule-based.</span>
-                </div>
-                <div class="d-flex align-items-start gap-2 small text-muted">
-                    <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                    <span>Police officers on this platform do <strong class="text-dark">not</strong> have admin or moderation privileges.</span>
-                </div>
+    <div class="mb-5">
+        <div class="d-flex flex-column gap-2">
+            <div class="d-flex align-items-start gap-2 small text-muted">
+                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
+                <span>It is <strong class="text-dark">not</strong> an official police or government system — integration with official systems is planned for future versions.</span>
+            </div>
+            <div class="d-flex align-items-start gap-2 small text-muted">
+                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
+                <span>It does <strong class="text-dark">not</strong> replace FIR filing or official missing person processes.</span>
+            </div>
+            <div class="d-flex align-items-start gap-2 small text-muted">
+                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
+                <span>It does <strong class="text-dark">not</strong> verify institutional IDs (hospital registration, police station IDs) through external government APIs — stored for future verification integration.</span>
+            </div>
+            <div class="d-flex align-items-start gap-2 small text-muted">
+                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
+                <span>It does <strong class="text-dark">not</strong> use AI or machine learning — all matching logic is rule-based, weighted, and fully explainable.</span>
+            </div>
+            <div class="d-flex align-items-start gap-2 small text-muted">
+                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
+                <span>Police officers on this platform do <strong class="text-dark">not</strong> have admin, moderation, or approval privileges — read-only access only.</span>
+            </div>
+            <div class="d-flex align-items-start gap-2 small text-muted">
+                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
+                <span>Photo comparison is <strong class="text-dark">not</strong> facial recognition — it uses perceptual hashing to detect visual similarity between uploaded images.</span>
             </div>
         </div>
     </div>
