@@ -25,7 +25,12 @@ from .forms import (
 
 
 def home(request):
-    return render(request, 'accounts/home.html')
+    factors = [
+        'Gender', 'Blood Group', 'Age Range', 'Height', 'Weight',
+        'District', 'Eye Color', 'Hair Color', 'Skin Tone',
+        'Identifying Marks', 'Clothing', 'Photo Similarity'
+    ]
+    return render(request, 'accounts/home.html', {'factor_list': factors})
 
 
 def about(request):
