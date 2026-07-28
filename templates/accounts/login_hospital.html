@@ -17,15 +17,13 @@
                         <div class="text-muted" style="font-size:0.75rem;">Use your Staff ID to sign in</div>
                     </div>
                 </div>
-
+                <!-- Login form for Hospital -->
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Staff ID</label>
                         {{ form.staff_id }}
-                        {% if form.staff_id.errors %}
-                        <div class="text-danger small mt-1">{{ form.staff_id.errors.0 }}</div>
-                        {% endif %}
+                        
                         <div class="form-text">The staff ID issued by your hospital</div>
                     </div>
                     <div class="mb-4">
@@ -36,7 +34,7 @@
                         Sign In
                     </button>
                 </form>
-
+                <!-- Footer for going back or switching accounts -->
                 <hr class="my-3">
                 <div class="text-center">
                     <a href="{% url 'login' %}" class="text-muted small">

@@ -18,30 +18,24 @@
                         <div class="text-muted" style="font-size:0.75rem;">Enter your email and password</div>
                     </div>
                 </div>
-
+                <!-- Login form for Family -->
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Email Address</label>
                         {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
-                        {% endif %}
+                        
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Password</label>
                         {{ form.password }}
                     </div>
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger small py-2 mb-3">
-                        <i class="bi bi-exclamation-circle me-1"></i>Invalid email or password.
-                    </div>
-                    {% endif %}
+                    
                     <button type="submit" class="btn btn-primary w-100 btn-lg fw-semibold">
                         Sign In
                     </button>
                 </form>
-
+                <!-- Footer for going back or switching accounts -->
                 <hr class="my-3">
                 <div class="text-center">
                     <a href="{% url 'login' %}" class="text-muted small">

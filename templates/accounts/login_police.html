@@ -7,7 +7,7 @@
         <div class="col-md-5 col-lg-4">
 
             <div class="auth-card card p-4">
-
+                <!-- header -->
                 <div class="d-flex align-items-center gap-2 mb-4">
                     <div style="width:38px;height:38px;background:#fef2f2;border-radius:9px;display:flex;align-items:center;justify-content:center;">
                         <i class="bi bi-shield-fill text-danger"></i>
@@ -17,15 +17,13 @@
                         <div class="text-muted" style="font-size:0.75rem;">Use your Police ID to sign in</div>
                     </div>
                 </div>
-
+                <!-- Login form for Police -->
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label class="form-label">Police Officer ID</label>
                         {{ form.police_id }}
-                        {% if form.police_id.errors %}
-                        <div class="text-danger small mt-1">{{ form.police_id.errors.0 }}</div>
-                        {% endif %}
+                        
                         <div class="form-text">Your official police officer ID number</div>
                     </div>
                     <div class="mb-4">
@@ -36,7 +34,7 @@
                         Sign In
                     </button>
                 </form>
-
+                <!-- Footer for going back or switching accounts -->
                 <hr class="my-3">
                 <div class="text-center">
                     <a href="{% url 'login' %}" class="text-muted small">
