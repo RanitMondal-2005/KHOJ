@@ -2,11 +2,17 @@
 accounts/views.py
 
 Registration, login, logout, and dashboard redirect views.
-Login is split into 3 separate pages - one per role.
+Login :
 Each role uses a different identifier to log in:
   Family   -> email + password
   Hospital -> staff_id + password
   Police   -> police_id + password
+
+Registration :
+ Family users will see -> the FamilyRegistrationForm,
+ hospital staff will see -> the HospitalRegistrationForm, 
+ police officers will see -> the PoliceRegistrationForm.
+
 """
 
 from django.shortcuts import render, redirect
@@ -23,7 +29,7 @@ from .forms import (
     PoliceLoginForm,
 )
 
-
+# --- Home page ----
 def home(request):
     factors = [
         'Gender', 'Blood Group', 'Age Range', 'Height', 'Weight',
@@ -32,23 +38,25 @@ def home(request):
     ]
     return render(request, 'accounts/home.html', {'factor_list': factors})
 
-
+# ---- About Us page ----
 def about(request):
     return render(request, 'accounts/about.html')
 
-
+# ---- Registration choice page ----
 def register_choice(request):
     """User picks which role they are before seeing the registration form."""
     return render(request, 'accounts/register_choice.html')
 
-
+# ---- Login choice page ----
 def login_choice(request):
     """Landing page where user picks which login page to go to."""
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'accounts/login_choice.html')
 
+# --------------------- LOGIN PAGES --------------------- :
 
+# ----- Family login ----
 def login_family(request):
     """Family login - uses email + password."""
     if request.user.is_authenticated:
@@ -62,7 +70,7 @@ def login_family(request):
                 messages.error(request, "This login page is for family users only.")
                 return redirect('login_family')
             # backend must be specified when multiple backends are configured
-            login(request, user, backend='accounts.backends.EmailBackend')
+            login(request, user, backend='accounts.backends.EmailBackend') # backend='accounts.backends.EmailBackend' means we are using the EmailBackend for authentication, this is imp to specify because multiple backends like StaffIDBackend and PoliceIDBackend etc. are configured.
             messages.success(request, f"Welcome back, {user.full_name}!")
             return redirect('family:dashboard')
         else:
@@ -72,7 +80,7 @@ def login_family(request):
 
     return render(request, 'accounts/login_family.html', {'form': form})
 
-
+# ---- Hospital login ----
 def login_hospital(request):
     """Hospital login - uses staff_id + password."""
     if request.user.is_authenticated:
@@ -98,7 +106,7 @@ def login_hospital(request):
 
     return render(request, 'accounts/login_hospital.html', {'form': form})
 
-
+# --- Police login ---
 def login_police(request):
     """Police login - uses police_id + password."""
     if request.user.is_authenticated:
@@ -125,17 +133,17 @@ def login_police(request):
     return render(request, 'accounts/login_police.html', {'form': form})
 
 
-def login_view(request):
-    """Kept for backward compat - just redirects to login choice page."""
-    return redirect('login_choice')
-
-
+# ---- Logout view ----
+# NOTE : We're using Django's logout() function (imported at the top), but wrapping it in our own view to add the flash message for UI improvements.
 def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
     return redirect('home')
 
 
+# --------------------- REGISTRATION  PAGES --------------------- :
+
+# --- Family registration ---
 def register_family(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -153,7 +161,7 @@ def register_family(request):
 
     return render(request, 'accounts/register_family.html', {'form': form})
 
-
+# --- Hospital registration ---
 def register_hospital(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -170,7 +178,7 @@ def register_hospital(request):
 
     return render(request, 'accounts/register_hospital.html', {'form': form})
 
-
+# --- Police registration ---
 def register_police(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -187,7 +195,7 @@ def register_police(request):
 
     return render(request, 'accounts/register_police.html', {'form': form})
 
-
+# --- Dashboard redirect according to user role ---
 @login_required
 def dashboard_redirect(request):
     """Sends logged-in user to their role-specific dashboard."""

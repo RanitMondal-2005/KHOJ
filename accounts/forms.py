@@ -9,11 +9,12 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from .models import KhojUser, HospitalProfile, PoliceProfile
 
+# ── REGISTRATION FORMS ───────────────────────────────────────────────────────
 
-# ── FAMILY REGISTRATION ────────────────────────────────────────────────────────
+# ── FAMILY REGISTRATION ──────
 
 class FamilyRegistrationForm(forms.ModelForm):
-
+    # Generating all the necessary fields for family registration form acc to our requirements
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
     )
@@ -28,33 +29,34 @@ class FamilyRegistrationForm(forms.ModelForm):
             'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email Address'}),
         }
-
+    # Validating email uniqueness
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if KhojUser.objects.filter(email=email).exists():
+        if KhojUser.objects.filter(email=email).exists(): # checking if email is already in use(that is, if a user with this email already exists in our backend DB)
             raise forms.ValidationError("An account with this email already exists.")
         return email
-
+    # Validating password confirmation (Since this form is not using Django's built-in user creation form, we need to manually check password confirmation)
     def clean(self):
-        cleaned_data = super().clean()
+        cleaned_data = super().clean() # Call the parent class's (which is ModelForm) clean method to ensure all fields are validated
         p1 = cleaned_data.get('password')
         p2 = cleaned_data.get('confirm_password')
         if p1 and p2 and p1 != p2:
             raise forms.ValidationError("Passwords do not match.")
         return cleaned_data
-
+    # Saving the user instance in our DB
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password'])
+        user = super().save(commit=False) # commit=False -> not saving the user instance to the DB yet before our password hashing
+        user.set_password(self.cleaned_data['password']) # Hashing the password(by set_password(..)), because we need to store it securely to avoid plain text storage directly in the DB
         user.role = 'FAMILY'
         if commit:
-            user.save()
+            user.save() # Saving the user to the DB
         return user
 
 
-# ── HOSPITAL REGISTRATION ──────────────────────────────────────────────────────
+# ── HOSPITAL REGISTRATION ──────────────
 
-class HospitalRegistrationForm(forms.Form):
+class HospitalRegistrationForm(forms.Form): 
+    # plain forms.Form is used for hospital and police registration but for family we are using ModelForm, because ModelForm can target only 1 model at a time but for hospital and police we need to handle 2 diff DB tables : 1 to store personal user info and 1 to store profile info
 
     full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
@@ -98,11 +100,11 @@ class HospitalRegistrationForm(forms.Form):
 
     def save(self):
         d = self.cleaned_data
-        user = KhojUser.objects.create_user(
+        user = KhojUser.objects.create_user( # first save staff personal details to user table (i.e, our base KhojUser model)
             email=d['email'], full_name=d['full_name'],
             role='HOSPITAL', password=d['password'],
         )
-        HospitalProfile.objects.create(
+        HospitalProfile.objects.create( # then save other details to profile table (i.e, HospitalProfile model) for separate institutional fields
             user=user, staff_id=d['staff_id'],
             hospital_registration_id=d['hospital_registration_id'],
             hospital_name=d['hospital_name'], district=d['district'],
@@ -112,7 +114,7 @@ class HospitalRegistrationForm(forms.Form):
         return user
 
 
-# ── POLICE REGISTRATION ────────────────────────────────────────────────────────
+# ── POLICE REGISTRATION ────────────────────
 
 class PoliceRegistrationForm(forms.Form):
 
@@ -169,9 +171,12 @@ class PoliceRegistrationForm(forms.Form):
 
 # ── LOGIN FORMS (one per role) ─────────────────────────────────────────────────
 
-class KhojLoginForm(AuthenticationForm):
+# ----- Family login form -----
+
+class KhojLoginForm(AuthenticationForm):  # Authentication form is the built-in Django form that we extended acc to our need.
+    # AuthenticationForm automatically creates Username and Password fields for you & does the authentication by default
     """Family login form - email + password."""
-    username = forms.EmailField(
+    username = forms.EmailField(    # We override the username field to use email instead of the default username.
         label="Email Address",
         widget=forms.EmailInput(attrs={
             'class': 'form-control form-control-lg',
@@ -179,7 +184,7 @@ class KhojLoginForm(AuthenticationForm):
             'autofocus': True
         })
     )
-    password = forms.CharField(
+    password = forms.CharField(  # We override the password field to use a custom widget.
         label="Password",
         widget=forms.PasswordInput(attrs={
             'class': 'form-control form-control-lg',
@@ -187,8 +192,8 @@ class KhojLoginForm(AuthenticationForm):
         })
     )
 
-
-class HospitalLoginForm(forms.Form):
+# ----- Hospital login form -----
+class HospitalLoginForm(forms.Form):  # By inheriting forms.Form -> we are starting with a completely blank canvas for a form, where we will design the fields manually.
     """Hospital staff login - staff_id + password."""
     staff_id = forms.CharField(
         label="Staff ID",
@@ -206,7 +211,7 @@ class HospitalLoginForm(forms.Form):
         })
     )
 
-
+# ----- Police login form -----
 class PoliceLoginForm(forms.Form):
     """Police login - police_id + password."""
     police_id = forms.CharField(
