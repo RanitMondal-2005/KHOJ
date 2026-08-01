@@ -21,9 +21,26 @@
                         <div class="mb-3">
                             <label class="form-label">{{ field.label }}</label>
                             {{ field }}
-                            {% if field.errors %}
+                            {% if field.errors %} 
                             <div class="text-danger small">{{ field.errors.0 }}</div>
                             {% endif %}
+                            <!--
+                                # REASON FOR FIELD ERRORS (not just Django messages):
+
+                                Django messages only show generic hardcoded alerts at the top of the page.
+                                Registration forms need field-level errors — e.g. "this email already exists"
+                                must appear right below the email field, not as a generic top alert.
+                                
+                                Two types of errors in Django forms:
+                                
+                                1. Field errors  → {{ form.fieldname.errors.0 }}
+                                Tied to a specific field. Shows inline below that input.
+                                Example: "Staff ID already registered", "Passwords do not match"
+                                
+                                2. Non-field errors  → {{ form.non_field_errors }}
+                                Not tied to any field — usually cross-field validation failures.
+                                Example: password1 != password2 check done in clean() method (in forms.py eg: raise ....) 
+                            -->
                         </div>
                         {% endfor %}
                         {% if form.non_field_errors %}
