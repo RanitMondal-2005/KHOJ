@@ -2,9 +2,13 @@
 {% block title %}{{ report.person_name }} - Report{% endblock %}
 {% block content %}
 <div class="container py-4">
-  <a href="{% url 'family:my_reports' %}" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Reports</a>
+  <a href="{% url 'family:my_reports' %}" class="text-muted small">
+    <i class="bi bi-arrow-left me-1"></i>Back to Reports
+  </a>
 
   <div class="row g-4 mt-1">
+
+    <!-- LEFT Side of the pg: photo + quick info + actions -->
     <div class="col-lg-4">
       <div class="card">
         <div class="card-body text-center">
@@ -34,15 +38,17 @@
         {% endif %}
       </div>
 
-      <!-- Actions -->
+      <!-- action buttons -->
       <div class="card mt-3">
         <div class="card-body">
           <p class="fw-semibold small mb-2">Actions</p>
-          <a href="{% url 'family:add_case_update' report.pk %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+          <a href="{% url 'family:add_case_update' report.pk %}"
+             class="btn btn-outline-primary btn-sm w-100 mb-2">
             <i class="bi bi-pencil me-1"></i>Add Update / Clue
           </a>
           {% if report.status == 'ACTIVE' %}
-          <a href="{% url 'family:close_case' report.pk %}" class="btn btn-outline-danger btn-sm w-100">
+          <a href="{% url 'family:close_case' report.pk %}"
+             class="btn btn-outline-danger btn-sm w-100">
             <i class="bi bi-x-circle me-1"></i>Close / Mark Found
           </a>
           {% endif %}
@@ -50,8 +56,10 @@
       </div>
     </div>
 
+  <!-- RIGHT side of the pg: location, matches, case updates -->
     <div class="col-lg-8">
-      <!-- Location & Details -->
+
+      <!-- location & details -->
       <div class="card mb-3">
         <div class="card-body">
           <h6 class="fw-semibold mb-3">Location & Details</h6>
@@ -76,18 +84,24 @@
             </div>
             {% endif %}
             {% if report.fir_number %}
-            <div class="col-md-6"><span class="text-muted">FIR No.:</span> {{ report.fir_number }}</div>
+            <div class="col-md-6">
+              <span class="text-muted">FIR No.:</span> {{ report.fir_number }}
+            </div>
             {% endif %}
             {% if report.police_station_name %}
-            <div class="col-md-6"><span class="text-muted">Police Station:</span> {{ report.police_station_name }}</div>
+            <div class="col-md-6">
+              <span class="text-muted">Police Station:</span> {{ report.police_station_name }}
+            </div>
             {% endif %}
           </div>
         </div>
       </div>
 
-      <!-- Matches -->
+      <!-- potential matches -->
       <div class="card mb-3">
-        <div class="card-header bg-white fw-semibold">Potential Matches ({{ matches|length }})</div>
+        <div class="card-header bg-white fw-semibold">
+          Potential Matches ({{ matches|length }})
+        </div>
         <div class="card-body p-0">
           {% if matches %}
           <div class="list-group list-group-flush">
@@ -103,7 +117,7 @@
                     Admitted {{ match.unidentified_patient.admission_date }} &middot;
                     {{ match.unidentified_patient.get_gender_display }}, ~{{ match.unidentified_patient.age }} yrs
                   </div>
-                  <!-- Hospital contact details only shown when a match exists -->
+                  <!-- hospital contact shown only because a valid match exists -->
                   <div class="mt-1 small text-success">
                     <i class="bi bi-telephone me-1"></i>
                     Emergency: {{ match.unidentified_patient.linked_hospital.hospital_profile.emergency_contact }}
@@ -112,10 +126,13 @@
                   </div>
                 </div>
                 <div class="text-end ms-2">
-                  <span class="badge bg-{{ match.confidence_label.1 }} d-block mb-1">{{ match.confidence_score }}%</span>
+                  <span class="badge bg-{{ match.confidence_label.1 }} d-block mb-1">
+                    {{ match.confidence_score }}%
+                  </span>
                   <span class="text-muted" style="font-size:0.7rem;">{{ match.confidence_label.0 }}</span>
                   <div class="mt-1">
-                    <a href="{% url 'family:reject_match' match.pk %}" class="btn btn-outline-secondary btn-sm"
+                    <a href="{% url 'family:reject_match' match.pk %}"
+                       class="btn btn-outline-secondary btn-sm"
                        onclick="return confirm('Dismiss this match?')">Dismiss</a>
                   </div>
                 </div>
@@ -124,30 +141,62 @@
             {% endfor %}
           </div>
           {% else %}
-          <div class="text-muted text-center py-4 small">No matches found yet. Matching runs automatically.</div>
+          <div class="text-muted text-center py-4 small">
+            No matches found yet. Matching runs automatically.
+          </div>
           {% endif %}
         </div>
       </div>
 
-      <!-- Case Updates Timeline -->
+    <!-- case updates timeline -->
       <div class="card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
           <span class="fw-semibold">Search Updates & Clues</span>
-          <a href="{% url 'family:add_case_update' report.pk %}" class="btn btn-sm btn-outline-primary">+ Add</a>
+          <a href="{% url 'family:add_case_update' report.pk %}"
+             class="btn btn-sm btn-outline-primary">+ Add</a>
         </div>
         <div class="card-body">
           {% if updates %}
-          {% for update in updates %}
-          <div class="update-item">
-            <div class="text-muted small mb-1">{{ update.created_at|date:"d M Y, h:i A" }}</div>
-            <p class="mb-1 small">{{ update.note }}</p>
-            {% if update.optional_image %}
-            <img src="{{ update.optional_image.url }}" class="photo-thumb" alt="update image">
-            {% endif %}
-          </div>
-          {% endfor %}
+            {% for update in updates %}
+            <div class="update-item">
+
+              <!-- timestamp + delete button on same row -->
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="text-muted small mb-1">
+                  {{ update.created_at|date:"d M Y, h:i A" }}
+                </div>
+                <!-- delete is only available on active cases -->
+                {% if report.status == 'ACTIVE' %}
+                <form method="post" action="{% url 'family:delete_case_update' update.pk %}">
+                  {% csrf_token %}
+                  <button type="submit"
+                          class="btn btn-sm text-danger border-0 bg-transparent p-0"
+                          onclick="return confirm('Delete this update?')"
+                          title="Delete update">
+                    <i class="bi bi-trash3 small"></i>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+
+            <!-- Update Results -->
+
+              <!-- the actual note text for that update details -->
+              <p class="mb-1 small">{{ update.note }}</p>
+
+              <!-- optional image if attached -->
+              {% if update.optional_image %}
+              <img src="{{ update.optional_image.url }}" class="img-thumbnail" style="width:10rem" alt="update image">
+              {% endif %}
+
+            </div>
+            {% endfor %}
+
+          <!-- When no Updates yet -->
           {% else %}
-          <p class="text-muted small mb-0">No updates yet. Add clues or search progress to keep track.</p>
+          <p class="text-muted small mb-0">
+            No updates yet. Add clues or search progress to keep track.
+          </p>
           {% endif %}
         </div>
       </div>
