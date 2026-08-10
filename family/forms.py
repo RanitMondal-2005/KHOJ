@@ -1,8 +1,7 @@
 """
 family/forms.py
 
-MissingPersonForm - updated with new fields (aadhaar, relation, filer details)
-and proper validation for age (1-100), height, weight (positive integers only).
+MissingPersonForm - For Family Members
 """
 
 from django import forms
@@ -13,11 +12,11 @@ class MissingPersonForm(forms.ModelForm):
 
     class Meta:
         model = MissingPerson
-        exclude = ['linked_family_user', 'status', 'created_at', 'updated_at', 'contact_number']
+        exclude = ['linked_family_user', 'status', 'created_at', 'updated_at', 'contact_number'] # We exclude fields that are either set automatically by the system (linked_family_user, status, timestamps), handled by Django itself (auto_now fields).
         widgets = {
             'person_name': forms.TextInput(attrs={'class': 'form-control'}),
             'age': forms.NumberInput(attrs={
-                'class': 'form-control', 'min': '1', 'max': '100', 'step': '1'
+                'class': 'form-control', 'min': '1', 'max': '100', 'step': '1' # restrict age to 1-100 (with no decimals or negatives) but this is only for browser side validation which can be bypassed, so we used this same in clean_age()
             }),
             'gender': forms.Select(attrs={'class': 'form-select'}),
             'height': forms.NumberInput(attrs={
@@ -31,7 +30,7 @@ class MissingPersonForm(forms.ModelForm):
             'hair_color': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Black'}),
             'skin_tone': forms.Select(attrs={'class': 'form-select'}),
             'identifying_marks': forms.Textarea(attrs={
-                'class': 'form-control', 'rows': 3, 'placeholder': 'Scars, tattoos, birthmarks...'
+                'class': 'form-control', 'rows': 3, 'placeholder': 'Scars, tattoos, birthmarks...' # rows: 3 controls the height of the textarea — it tells the browser to render the textarea tall enough to show 3 lines of text at once initially.
             }),
             'clothing_description': forms.Textarea(attrs={
                 'class': 'form-control', 'rows': 3, 'placeholder': 'Last known clothing...'
@@ -49,7 +48,9 @@ class MissingPersonForm(forms.ModelForm):
             'police_station_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional'}),
         }
 
-    # age: must be between 1 and 100, no decimals
+    # ------- Server Side Validation for restricting age, height, weight & Aadhaar ---------
+
+    # age: must be between 1 and 100, no decimals and no negatives
     def clean_age(self):
         age = self.cleaned_data.get('age')
         if age is None:
@@ -98,5 +99,5 @@ class CaseUpdateForm(forms.ModelForm):
                 'class': 'form-control', 'rows': 4,
                 'placeholder': 'Enter any new information, clue, or search progress...'
             }),
-            'optional_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'optional_image': forms.FileInput(attrs={'class': 'form-control'}),
         }
