@@ -118,6 +118,25 @@ def add_case_update(request, pk):
 
     return render(request, 'family/add_case_update.html', {'form': form, 'report': report})
 
+@family_required
+def delete_case_update(request, pk):
+    """
+    Family user deletes one of their own case updates.
+    Only POST allowed — no accidental deletions via GET.
+    RBAC enforced — can only delete updates belonging to their own reports.
+    """
+    update = get_object_or_404(
+        CaseUpdate,
+        pk=pk,
+        linked_missing_person__linked_family_user=request.user  # ensures ownership
+    )
+    report_pk = update.linked_missing_person.pk  # save this before deleting
+
+    if request.method == 'POST':
+        update.delete()
+        messages.success(request, "Update deleted.")
+
+    return redirect('family:report_detail', pk=report_pk)
 
 @family_required
 def my_matches(request):

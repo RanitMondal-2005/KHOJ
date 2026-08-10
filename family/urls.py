@@ -4,13 +4,20 @@ from . import views
 app_name = 'family'
 
 urlpatterns = [
+    # Family Dashboard
     path('dashboard/', views.dashboard, name='dashboard'),
+    # Report Detail for family users : view current reports/add new
     path('reports/', views.my_reports, name='my_reports'),
     path('reports/add/', views.add_report, name='add_report'),
     path('reports/<int:pk>/', views.report_detail, name='report_detail'),
+    # Case Updates : Add/Delete
     path('reports/<int:pk>/update/', views.add_case_update, name='add_case_update'),
+    path('updates/<int:pk>/delete/', views.delete_case_update, name='delete_case_update'),
+    # Close Case
     path('reports/<int:pk>/close/', views.close_case, name='close_case'),
+    # Matches for family users : view potential matches/reject a match
     path('matches/', views.my_matches, name='my_matches'),
     path('matches/<int:pk>/reject/', views.reject_match, name='reject_match'),
+    # Closed/Archived Cases
     path('archived/', views.archived_cases, name='archived_cases'),
 ]
