@@ -124,7 +124,7 @@
             <div class="col-7">
               {{ match.unidentified_patient.get_found_id_type_display }}
               {% if match.unidentified_patient.found_id_last4 %}
-                (****{{ match.unidentified_patient.found_id_last4 }})
+                (****{{ match.unidentified_patient.found_id_last4 }}) <!-- Last 4 Digits of ID only-->
               {% endif %}
             </div>
             {% endif %}
@@ -189,88 +189,88 @@
               </tr>
             </thead>
             <tbody>
-              {% with b=match.score_breakdown %}
-              <tr>
-                <td><i class="bi bi-gender-ambiguous me-1 text-muted"></i>Gender</td>
-                <td class="text-center text-muted">20</td>
-                <td class="text-center">{% if b.gender %}<span class="badge bg-success">+{{ b.gender }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.gender %}#198754{% else %}#dee2e6{% endif %};width:{% if b.gender %}{{ b.gender|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-droplet me-1 text-muted"></i>Blood Group</td>
-                <td class="text-center text-muted">15</td>
-                <td class="text-center">{% if b.blood_group %}<span class="badge bg-success">+{{ b.blood_group }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.blood_group %}#198754{% else %}#dee2e6{% endif %};width:{% if b.blood_group %}{{ b.blood_group|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-calendar me-1 text-muted"></i>Age</td>
-                <td class="text-center text-muted">15</td>
-                <td class="text-center">{% if b.age %}<span class="badge bg-primary">+{{ b.age }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.age %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.age %}{{ b.age|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-arrows-vertical me-1 text-muted"></i>Height</td>
-                <td class="text-center text-muted">10</td>
-                <td class="text-center">{% if b.height %}<span class="badge bg-primary">+{{ b.height }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.height %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.height %}{{ b.height|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-geo-alt me-1 text-muted"></i>District</td>
-                <td class="text-center text-muted">10</td>
-                <td class="text-center">{% if b.district %}<span class="badge bg-success">+{{ b.district }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.district %}#198754{% else %}#dee2e6{% endif %};width:{% if b.district %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-body-text me-1 text-muted"></i>Marks</td>
-                <td class="text-center text-muted">10</td>
-                <td class="text-center">{% if b.marks %}<span class="badge bg-warning text-dark">+{{ b.marks }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.marks %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.marks %}{{ b.marks|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-person-standing me-1 text-muted"></i>Clothing</td>
-                <td class="text-center text-muted">10</td>
-                <td class="text-center">{% if b.clothing %}<span class="badge bg-warning text-dark">+{{ b.clothing }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.clothing %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.clothing %}{{ b.clothing|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              {% if b.face_match %}
-              <tr>
-                  <td><i class="bi bi-camera-fill me-1 text-muted"></i>Face Similarity</td>
-                  <td class="text-center text-muted">10</td>
-                  <td class="text-center">
-                      <span class="badge bg-success">+{{ b.face_match }}</span>
-                  </td>
-                  <td>
-                      <div style="background:#e9ecef;border-radius:4px;height:8px;">
-                          <div style="background:#198754;width:{{ b.face_match }}0%;height:8px;border-radius:4px;max-width:100%;"></div>
-                      </div>
-                  </td>
-              </tr>
-              {% endif %}
-              <tr>
-                <td><i class="bi bi-eye me-1 text-muted"></i>Eye Color</td>
-                <td class="text-center text-muted">5</td>
-                <td class="text-center">{% if b.eye_color %}<span class="badge bg-secondary">+{{ b.eye_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.eye_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.eye_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-person me-1 text-muted"></i>Hair Color</td>
-                <td class="text-center text-muted">5</td>
-                <td class="text-center">{% if b.hair_color %}<span class="badge bg-secondary">+{{ b.hair_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.hair_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.hair_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-palette me-1 text-muted"></i>Skin Tone</td>
-                <td class="text-center text-muted">5</td>
-                <td class="text-center">{% if b.skin_tone %}<span class="badge bg-secondary">+{{ b.skin_tone }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.skin_tone %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.skin_tone %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
-              </tr>
-              <tr>
-                <td><i class="bi bi-circle me-1 text-muted"></i>Weight</td>
-                <td class="text-center text-muted">5</td>
-                <td class="text-center">{% if b.weight %}<span class="badge bg-secondary">+{{ b.weight }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
-                <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.weight %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.weight %}{{ b.weight|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
-              </tr>
-              {% endwith %}
+              {% with b=match.score_breakdown %} <!-- Shortcut for creating a variable name to store match.score_breakdown -->
+                  <tr>
+                    <td><i class="bi bi-gender-ambiguous me-1 text-muted"></i>Gender</td>
+                    <td class="text-center text-muted">20</td>
+                    <td class="text-center">{% if b.gender %}<span class="badge bg-success">+{{ b.gender }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.gender %}#198754{% else %}#dee2e6{% endif %};width:{% if b.gender %}{{ b.gender|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-droplet me-1 text-muted"></i>Blood Group</td>
+                    <td class="text-center text-muted">15</td>
+                    <td class="text-center">{% if b.blood_group %}<span class="badge bg-success">+{{ b.blood_group }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.blood_group %}#198754{% else %}#dee2e6{% endif %};width:{% if b.blood_group %}{{ b.blood_group|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-calendar me-1 text-muted"></i>Age</td>
+                    <td class="text-center text-muted">15</td>
+                    <td class="text-center">{% if b.age %}<span class="badge bg-primary">+{{ b.age }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.age %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.age %}{{ b.age|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-arrows-vertical me-1 text-muted"></i>Height</td>
+                    <td class="text-center text-muted">10</td>
+                    <td class="text-center">{% if b.height %}<span class="badge bg-primary">+{{ b.height }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.height %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.height %}{{ b.height|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-geo-alt me-1 text-muted"></i>District</td>
+                    <td class="text-center text-muted">10</td>
+                    <td class="text-center">{% if b.district %}<span class="badge bg-success">+{{ b.district }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.district %}#198754{% else %}#dee2e6{% endif %};width:{% if b.district %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-body-text me-1 text-muted"></i>Marks</td>
+                    <td class="text-center text-muted">10</td>
+                    <td class="text-center">{% if b.marks %}<span class="badge bg-warning text-dark">+{{ b.marks }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.marks %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.marks %}{{ b.marks|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-person-standing me-1 text-muted"></i>Clothing</td>
+                    <td class="text-center text-muted">10</td>
+                    <td class="text-center">{% if b.clothing %}<span class="badge bg-warning text-dark">+{{ b.clothing }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.clothing %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.clothing %}{{ b.clothing|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+                  {% if b.face_match %}
+                  <tr>
+                      <td><i class="bi bi-camera-fill me-1 text-muted"></i>Face Similarity</td>
+                      <td class="text-center text-muted">10</td>
+                      <td class="text-center">
+                          <span class="badge bg-success">+{{ b.face_match }}</span>
+                      </td>
+                      <td>
+                          <div style="background:#e9ecef;border-radius:4px;height:8px;">
+                              <div style="background:#198754;width:{{ b.face_match }}0%;height:8px;border-radius:4px;max-width:100%;"></div>
+                          </div>
+                      </td>
+                  </tr>
+                  {% endif %}
+                  <tr>
+                    <td><i class="bi bi-eye me-1 text-muted"></i>Eye Color</td>
+                    <td class="text-center text-muted">5</td>
+                    <td class="text-center">{% if b.eye_color %}<span class="badge bg-secondary">+{{ b.eye_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.eye_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.eye_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-person me-1 text-muted"></i>Hair Color</td>
+                    <td class="text-center text-muted">5</td>
+                    <td class="text-center">{% if b.hair_color %}<span class="badge bg-secondary">+{{ b.hair_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.hair_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.hair_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-palette me-1 text-muted"></i>Skin Tone</td>
+                    <td class="text-center text-muted">5</td>
+                    <td class="text-center">{% if b.skin_tone %}<span class="badge bg-secondary">+{{ b.skin_tone }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.skin_tone %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.skin_tone %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-circle me-1 text-muted"></i>Weight</td>
+                    <td class="text-center text-muted">5</td>
+                    <td class="text-center">{% if b.weight %}<span class="badge bg-secondary">+{{ b.weight }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.weight %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.weight %}{{ b.weight|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
+                  </tr>
+            {% endwith %}
 
               <!-- total -->
               <tr style="background:#f8fafc; border-top:2px solid #e9ecef;">
