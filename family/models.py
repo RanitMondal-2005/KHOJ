@@ -4,11 +4,6 @@ family/models.py
 MissingPerson - the main report filed by a family user.
 CaseUpdate    - private notes/clues added by the family to their own case.
 
-New fields added:
-  - aadhaar_number  (Aadhaar of the missing person)
-  - relation        (filer's relation to the missing person)
-  - filer_contact   (contact number of the person filing the report)
-  - filer_email     (email of the person filing the report)
 """
 
 from django.db import models
@@ -18,7 +13,7 @@ from accounts.models import KhojUser
 class MissingPerson(models.Model):
 
     GENDER_CHOICES = [
-        ('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other'),
+        ('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other'), # For Choices : The first element in each tuple is the actual value to be set on the model, and the second element is the human-readable name.
     ]
     BLOOD_GROUP_CHOICES = [
         ('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'),
@@ -39,7 +34,7 @@ class MissingPerson(models.Model):
         ('RELATIVE', 'Other Relative'), ('FRIEND', 'Friend'),
         ('GUARDIAN', 'Guardian'), ('OTHER', 'Other'),
     ]
-
+    # Connecting the user who filled the report as the linked family user
     linked_family_user = models.ForeignKey(
         KhojUser, on_delete=models.CASCADE, related_name='missing_reports'
     )
@@ -108,7 +103,7 @@ class CaseUpdate(models.Model):
     """Private notes/clues added by the family. Not public sightings."""
 
     linked_missing_person = models.ForeignKey(
-        MissingPerson, on_delete=models.CASCADE, related_name='case_updates'
+        MissingPerson, on_delete=models.CASCADE, related_name='case_updates'    # related_name for reverse ForeignKey lookup, so we can move from MissingPerson -> CaseUpdate (Opposite of where the FK was defined).
     )
     note = models.TextField()
     optional_image = models.ImageField(upload_to='updates/', blank=True, null=True)
