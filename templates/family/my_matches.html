@@ -47,11 +47,12 @@
                  alt="Full body photo">
             {% endif %}
 
-            <!-- dots -->
+            <!-- dots to indicate no of photos for missing person -->
             <div style="position:absolute; bottom:6px; left:0; right:0; text-align:center;">
               <span class="mp-dot active-mp-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:1;"></span>
               <span class="mp-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:0.4;"></span>
             </div>
+            
             <div style="position:absolute;top:6px;left:6px;">
               <span class="badge bg-dark" style="font-size:0.6rem;opacity:0.8;">Your Photos</span>
             </div>
@@ -314,32 +315,16 @@
 <script>
 // slider for missing person photos (passport + full body)
 document.querySelectorAll('.missing-photo-slider').forEach(function(slider) {
-    var imgs = slider.querySelectorAll('.mp-slider-img');
-    var dots = slider.querySelectorAll('.mp-dot');
-    var current = 0;
+    const imgs = slider.querySelectorAll('.mp-slider-img');
+    const dots = slider.querySelectorAll('.mp-dot');
+    let current = 0;
 
-    if (imgs.length <= 1) return;
+    if (imgs.length <= 1) return; // No need for a slider if there's only one image
 
-    setInterval(function() {
+    setInterval(function() { // Looping infinitely between images
         imgs[current].style.display = 'none';
         dots[current].style.opacity = '0.4';
-        current = (current + 1) % imgs.length;
-        imgs[current].style.display = 'block';
-        dots[current].style.opacity = '1';
-    }, 2500);
-});
-</script>
-<script>
-// cycles through the 3 hospital-uploaded patient photos
-document.querySelectorAll('.police-patient-slider').forEach(function(slider) {
-    var imgs = slider.querySelectorAll('.pol-slide-img');
-    var dots = slider.querySelectorAll('.pol-dot');
-    var current = 0;
-    if (imgs.length <= 1) return;
-    setInterval(function() {
-        imgs[current].style.display = 'none';
-        dots[current].style.opacity = '0.4';
-        current = (current + 1) % imgs.length;
+        current = (current + 1) % imgs.length; // Move to the next image
         imgs[current].style.display = 'block';
         dots[current].style.opacity = '1';
     }, 2500);
