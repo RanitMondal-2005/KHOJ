@@ -18,11 +18,11 @@
         You have reached the limit of 3 active cases. Please close or resolve an existing case before filing a new one.
     </div>
     {% else %}
-
-    <form method="post" enctype="multipart/form-data">
+<!-- --------- Missing Person's Report Form  To be filled by Family Members ------------------- -->
+    <form method="post" enctype="multipart/form-data"> <!-- enctype is required for file uploads, which here are images -->
         {% csrf_token %}
 
-        <!-- SECTION: Missing Person's Details -->
+        <!-- SECTION 1 : Missing Person's Details -->
         <div class="card mb-3">
             <div class="card-header fw-semibold">
                 <i class="bi bi-person me-2 text-primary"></i>Missing Person's Details
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="col-md-3">
-                        <!-- no decimal, no negative enforced via widget min/step -->
+                        <!-- no decimal, no negative enforced via widget min/step and server-side validation too-->
                         <label class="form-label">Height (cm) *</label>
                         {{ form.height }}
                         {% if form.height.errors %}<div class="text-danger small mt-1">{{ form.height.errors.0 }}</div>{% endif %}
@@ -90,7 +90,7 @@
             </div>
         </div>
 
-        <!-- SECTION: Filer Details (person submitting the form) -->
+        <!-- SECTION 2 : Filer Details (person submitting the form) -->
         <div class="card mb-3">
             <div class="card-header fw-semibold">
                 <i class="bi bi-person-check me-2 text-success"></i>Your Details (Person Filing This Report)
@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        <!-- SECTION: Last Known Location -->
+        <!-- SECTION 3: Last Known Location -->
         <div class="card mb-3">
             <div class="card-header fw-semibold">
                 <i class="bi bi-geo-alt me-2 text-danger"></i>Last Known Location
@@ -138,11 +138,12 @@
             </div>
         </div>
 
-        <!-- SECTION: Photos -->
+        <!-- SECTION 4 : Photos -->
         <div class="card mb-3">
             <div class="card-header fw-semibold">
                 <i class="bi bi-images me-2 text-warning"></i>Photos
                 <span class="text-muted fw-normal small ms-1">(both required)</span>
+                <div class="text-muted small mt-1">Upload clear images for better matching (<span class="text-danger">within 2MB</span>)</div>
             </div>
             <div class="card-body">
                 <div class="row g-3">

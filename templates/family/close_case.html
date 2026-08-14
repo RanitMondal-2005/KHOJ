@@ -9,10 +9,12 @@
       <form method="post">
         {% csrf_token %}
         <div class="d-grid gap-3">
-          <button type="submit" name="action" value="FOUND" class="btn btn-success btn-lg">
+          <!-- Mark as FOUND button -->
+          <button type="submit" name="action" value="FOUND" class="btn btn-success btn-lg" onclick="return confirm('Mark this case as FOUND?')">
             <i class="bi bi-check-circle me-2"></i>Mark as FOUND
             <div class="small fw-normal">{{ report.person_name }} has been located</div>
           </button>
+          <!-- Mark as CLOSED button -->
           <button type="submit" name="action" value="CLOSED" class="btn btn-outline-secondary btn-lg"
                   onclick="return confirm('Close this case without marking as found?')">
             <i class="bi bi-archive me-2"></i>Close Case
