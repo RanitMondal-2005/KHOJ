@@ -6,37 +6,27 @@ and returns both a total confidence score AND a per-field breakdown dict.
 
 Scoring Breakdown (Total possible = 110, capped at 100):
 ---------------------------------------------------------
-  Gender exact match           → +20
-  Blood group exact match      → +15
-  Age similarity               → up to +15
-  Height similarity            → up to +10
-  District match               → +10
-  Identifying marks overlap    → up to +10
-  Clothing overlap             → up to +10
-  Face photo similarity        → up to +10  (face_recognition library)
-  Weight similarity            → up to +5
-  Eye color match              → +5
-  Hair color match             → +5
-  Skin tone match              → +5
+  Gender exact match           - +20
+  Blood group exact match      - +15
+  Age similarity               - up to +15
+  Height similarity            - up to +10
+  District match               - +10
+  Identifying marks overlap    - up to +10
+  Clothing overlap             - up to +10
+  Face photo similarity        - up to +10  (image_hash library)
+  Weight similarity            - up to +5
+  Eye color match              - +5
+  Hair color match             - +5
+  Skin tone match              - +5
 ---------------------------------------------------------
   TOTAL MAX (capped)           = 100
 
 Threshold: only store matches >= MATCH_CONFIDENCE_THRESHOLD (default 40)
 
-# Each function compares one aspect of the missing person and patient data,
-# returning a score based on how closely they match.
- MATCHING ALGORITHM LOGIC ->
- 1. Exact matches get full points.
- 2. Similarities (like age, height) get partial points.
- 3. UNKNOWN values are treated as non-matches.
-and this are done by individual scoring functions via fixed scoring logic(RULES).
-Also, the total score is capped at 100. Although individual aspects may score higher, the final match score will not exceed this cap.
-Logic of this Cap : The scoring functions are designed to return a maximum score for each aspect, and the overall match score is calculated by summing these individual scores. If the total exceeds 100, it is capped at 100.
 
 """
 
-from django.conf import settings   # importing Django settings file
-
+from django.conf import settings   
 
 # ── individual scoring functions ──────────────────────────────────────────────
 
@@ -183,10 +173,10 @@ def _keyword_overlap_score(text1, text2, max_score):   # helper function for tex
     if not words1 or not words2:   # if no useful words remain
         return 0                   # no score
 
-    common = words1.intersection(words2)   # find common keywords
-    union  = words1.union(words2)          # find all unique keywords
+    common = words1.intersection(words2)   # find common keywords, Role of Intersection() in django is that it returns all records that are present in both querysets.
+    union  = words1.union(words2)          # find all unique keywords, Role of Union() in django is that it combines two querysets i.e. it returns all unique records from both querysets.
 
-    if not union:   # safety check
+    if not union:   # safety check for empty union i.e. no common keywords then return 0
         return 0
 
     return round((len(common) / len(union)) * max_score, 1)
