@@ -3,7 +3,7 @@
 > A rule-based coordination platform connecting families, hospitals, and police to help resolve missing person cases across districts.
 
 ## Live URL :
-..............
+https://khoj99.pythonanywhere.com/
 ---
 
 ## What is Khoj?
@@ -254,3 +254,6 @@ This project is licensed under the **MIT License** — anyone can use, copy, mod
 |------|--------|
 | Ranit Mondal | [@RanitMondal-2005](https://github.com/RanitMondal-2005) |
 | Biswajit Samanta | [@BiswajitSamanta](https://github.com/Biswajitsamanta1109) |
+
+## Visit our site at :
+https://khoj99.pythonanywhere.com/
