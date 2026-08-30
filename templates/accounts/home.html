@@ -35,16 +35,26 @@
                 </p>
 
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="{% url 'register_choice' %}"
-                       class="btn btn-primary btn-lg px-5 fw-semibold"
-                       style="background:#4e9af1; border:none; border-radius:8px;">
-                        Register
-                    </a>
-                    <a href="{% url 'login' %}"
-                       class="btn btn-lg px-5 fw-semibold"
-                       style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px;">
-                        Login
-                    </a>
+                    {% if user.is_authenticated %}
+                        <!-- already logged in - take them to their dashboard -->
+                        <a href="{% url 'dashboard' %}"
+                        class="btn btn-primary btn-lg px-5 fw-semibold"
+                        style="background:#4e9af1; border:none; border-radius:8px;">
+                            Go to Dashboard
+                        </a>
+                    {% else %}
+                        <!-- not logged in - show register and login -->
+                        <a href="{% url 'register_choice' %}"
+                        class="btn btn-primary btn-lg px-5 fw-semibold"
+                        style="background:#4e9af1; border:none; border-radius:8px;">
+                            Register
+                        </a>
+                        <a href="{% url 'login' %}"
+                        class="btn btn-lg px-5 fw-semibold"
+                        style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:8px;">
+                            Login
+                        </a>
+                    {% endif %}
                 </div>
 
             </div>
