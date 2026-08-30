@@ -9,18 +9,20 @@ from hospital.models import UnidentifiedPatient
 from matching.models import MatchResult
 from accounts.models import HospitalProfile
 
+# ---------------------- Custom Decorator For Police views (RBAC) -------------------------------------
 
 def police_required(view_func):
     """Decorator: only police officers can access these views."""
-    @wraps(view_func)
-    @login_required
+    @login_required # Check 1:
+    @wraps(view_func) # Identity Preservation
     def wrapper(request, *args, **kwargs):
-        if request.user.role != 'POLICE':
+        if request.user.role != 'POLICE': # Check 2:
             messages.error(request, "Access denied. This section is for police officers only.")
             return redirect('dashboard')
         return view_func(request, *args, **kwargs)
     return wrapper
 
+# ----------------------- Police Views -------------------------------------------
 
 @police_required
 def dashboard(request):

@@ -8,11 +8,11 @@ from .forms import MissingPersonForm, CaseUpdateForm
 from matching.models import MatchResult
 from notifications.models import Notification
 
-# ---------------------- Custom Decorator to wrap family views with 2 checks --------------------------
+# ---------------------- Custom Decorator to wrap family views with 2 checks (RBAC) --------------------------
 
 def family_required(view_func): # view_func is a parameter representing the original Django view function that we put the decorator on top of. So,view_func holds the actual web page code that should only be executed if the user passes security checks.
     @login_required # CHECK 1 : User is logged in or not (if yes,then move to check 2)
-    @wraps(view_func) # Identity Preservation : Ensures the original view function's metadata is preserved
+    @wraps(view_func) # Identity Preservation : Ensures the original view function's metadata is preserved, beacuse Django sees every decorated view as wrapper — which can cause confusing error messages and makes stack traces much harder to read when something breaks.
     def wrapper(request, *args, **kwargs): # diff views have diff parameters so we use *args and **kwargs to smoothly handle them
         if request.user.role != 'FAMILY': # CHECK 2 : User is family or not
             messages.error(request, "Access denied. This section is for family users only.")

@@ -15,18 +15,20 @@ from .forms import UnidentifiedPatientForm
 from matching.models import MatchResult
 from notifications.models import Notification
 
+# ---------------- Custom Decorator For Hospital views with 2 checks (RBAC) ----------------
 
-def hospital_required(view_func):
+def hospital_required(view_func): # # view_func is a parameter representing the original Django view function that we put the decorator on top of. So,view_func holds the actual web page code that should only be executed if the both checks are passed
     """Decorator to restrict view to hospital staff only."""
-    @wraps(view_func)
-    @login_required
+    @login_required # Check 1 :
+    @wraps(view_func) # Identity Preservation : Preserving MetaData (like __name__, __doc__, __module__): it copies metadata from view_func onto wrapper first. Without this, Django sees every decorated view as wrapper — which can cause confusing error messages and makes stack traces much harder to read when something breaks.
     def wrapper(request, *args, **kwargs):
-        if request.user.role != 'HOSPITAL':
+        if request.user.role != 'HOSPITAL': # Check 2:
             messages.error(request, "Access denied. This section is for hospital staff only.")
             return redirect('dashboard')
         return view_func(request, *args, **kwargs)
     return wrapper
 
+# ---------------------- Hospital Views ----------------------------------------------------------
 
 @hospital_required
 def dashboard(request):
