@@ -40,6 +40,15 @@ main {
     color: #fff;
 }
 
+/* ── Hero Buttons Simple Hover (Register & Login <a> tags in Home pg) ───────────────────────────────── */
+.khoj-hero .btn-primary:hover {
+    background-color: #3b82f6 !important;
+}
+
+.khoj-hero .btn:not(.btn-primary):hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
 /* individual nav link items */
 .nav-link-khoj {
     color: #adb5bd !important;
@@ -64,15 +73,10 @@ main {
     font-weight: 600;
     border-radius: 6px;
     padding: 0.4rem 1rem !important;
-    transition: background 0.15s ease;
     text-decoration: none;
     display: inline-block;
 }
 
-.btn-khoj-register:hover {
-    background-color: #3a87e0;
-    color: #fff !important;
-}
 
 /* user avatar - circle with first letter of name */
 .khoj-avatar {
@@ -83,13 +87,13 @@ main {
     color: #fff;
     font-size: 0.72rem;
     font-weight: 700;
-    display: inline-flex;
+    display: inline-flex; /* makes an element behave like an inline element on the outside, while acting as a flexbox container on the inside; so this Keeps the avatar in-line with text while perfectly centering its letter inside the circle. */
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    flex-shrink: 0; /* It tells Not to shrink the element under any condition, So this Prevents the letter inside circle from getting squished or flattened when screen space gets tight. */
 }
 
-/* dropdown toggle for user name/avatar */
+/* Dropdown toggle for user name/avatar in dashboard */
 .khoj-user-pill {
     color: #adb5bd !important;
     font-size: 0.84rem;
@@ -112,7 +116,7 @@ main {
     line-height: 1.3;
 }
 
-/* small role indicator dot in dropdown */
+/* small role indicator dot in dropdown of name/avatar in dashboard */
 .khoj-role-dot {
     width: 8px;
     height: 8px;
@@ -125,37 +129,38 @@ main {
 .khoj-role-hospital { background-color: #198754; }
 .khoj-role-police  { background-color: #dc3545; }
 
-/* ── Dropdown ────────────────────────────────────────────────── */
-.dropdown-menu {
+
+/* ── Dropdown : Styles the popup menu under User Avatar/Profile in navbar ───────── */
+ .dropdown-menu {  /* .dropdown-menu is Bootstrap's built-in container class for any floating pop-up menu. We override it to provide more polished look for our site. */
     border-radius: 10px;
     border: 1px solid #e9ecef;
     font-size: 0.85rem;
-    min-width: 175px;
+    min-width: 175px;  /* min-width ensures the box won't shrink below this size, even if content inside is very short */
     box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
 }
 
-/* ── Flash alerts ────────────────────────────────────────────── */
+/* ── Flash alerts : styling class for messages (Django's messages framework) ─────── */
 .khoj-alert {
     font-size: 0.87rem;
     border-radius: 8px;
     border: none;
 }
 
-/* ── Cards ───────────────────────────────────────────────────── */
-.card {
+/* ── Cards (Used in all CARDS) ───────────────────────────────────────────────────── */
+ .card {  /* Bootstrap built in class but we are overriding this for our need */
     border: 1px solid #e2e5ea;
-    border-radius: 8px;
+    border-radius: 18px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.card-header {
+.card-header { /* Same bootstrap built-in class,used to create a dedicated header container inside a .card component. */
     border-bottom: 1px solid #e2e5ea;
     border-radius: 8px 8px 0 0 !important;
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
 }
 
-/* ── Stat Cards on dashboards ────────────────────────────────── */
+/* ── Stat Cards on dashboards (Active Cases,Pending Matches,Notification) ────────────────────────────────── */
 .stat-card {
     border-left: 4px solid;
     border-radius: 8px;
@@ -163,30 +168,30 @@ main {
     transition: box-shadow 0.15s;
 }
 
-.stat-card:hover {
-    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-}
+
 
 /* ── Buttons ─────────────────────────────────────────────────── */
-.btn {
+
+/* Both .btn and .btn-sm are Bootstrap Classes, we overirde for our need */
+ .btn { /* Base Button Class */
     font-size: 0.88rem;
     font-weight: 500;
     border-radius: 6px;
 }
 
-.btn-sm {
+.btn-sm { /* Small Button Class */
     font-size: 0.8rem;
     padding: 0.3rem 0.75rem;
 }
 
-/* ── Forms ───────────────────────────────────────────────────── */
+/* ── Forms (Used across Diff Forms Like: add_report,add_case_update etc.) ───────────────────────────────────────────────────── */
 .form-control, .form-select {
     font-size: 0.88rem;
     border-radius: 6px;
     border-color: #ced4da;
 }
 
-.form-control:focus, .form-select:focus {
+ .form-control:focus, .form-select:focus { /* highlight glow when a user clicks or type inside a field */
     border-color: #4e9af1;
     box-shadow: 0 0 0 3px rgba(78,154,241,0.12);
 }
@@ -222,12 +227,12 @@ main {
     color: #495057;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    background-color: #f1f5f9;
 }
 
-.table-hover tbody tr:hover { background-color: #f8f9fa; }
 
-/* ── Photo Thumbnails ────────────────────────────────────────── */
-.photo-thumb {
+/* ── Photo Thumbnails (Custom Class) ────────────────────────────────────────── */
+.photo-thumb { /* Small */
     width: 52px;
     height: 52px;
     object-fit: cover;
@@ -236,7 +241,7 @@ main {
     flex-shrink: 0;
 }
 
-.photo-thumb-lg {
+.photo-thumb-lg { /* Large */
     width: 140px;
     height: 140px;
     object-fit: cover;
@@ -244,13 +249,6 @@ main {
     border: 1px solid #dee2e6;
 }
 
-/* ── Match Cards ─────────────────────────────────────────────── */
-.match-card { transition: box-shadow 0.15s ease, transform 0.1s ease; }
-
-.match-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.09);
-    transform: translateY(-1px);
-}
 
 /* ── Case Update Timeline ────────────────────────────────────── */
 .update-item {
@@ -260,9 +258,8 @@ main {
     padding-bottom: 0.25rem;
 }
 
-/* most recent update gets blue left border */
-.update-item:last-child { border-left-color: #4e9af1; margin-bottom: 0; }
-.update-item .update-meta { font-size: 0.75rem; color: #868e96; margin-bottom: 0.25rem; }
+.update-item:first-child { border-left-color: #4e9af1; margin-bottom: 1rem; } /* Targets the most recent update item in the timeline list and gives its vertical left border a blue accent instead of the standard gray */
+.update-item .update-meta { font-size: 0.75rem; color: #868e96; margin-bottom: 0.25rem; } /* Formats small descriptive text like timestamps, author names, or status notes inside a timeline item */
 
 /* ── Hero section (home page) ────────────────────────────────── */
 .khoj-hero {
@@ -295,7 +292,7 @@ main {
 
 .feature-card:hover {
     box-shadow: 0 8px 24px rgba(0,0,0,0.07);
-    transform: translateY(-3px);
+    transform: translateY(-3px); /*  moves the element UP by 3px along the vertical (Y) axis. At top, Y=0; Move Up=-Y, Move Down=+Y */
 }
 
 /* ── Footer ──────────────────────────────────────────────────── */
@@ -312,14 +309,25 @@ main {
     margin-bottom: 1.5rem;
 }
 
-/* ── Auth card (login/register pages) ────────────────────────── */
+/* ── Auth card (login/register pages Forms): the actual form input pages that come after selecting a role ────────────────────────── */
 .auth-card {
     border: 1px solid #e3e8ef;
     border-radius: 14px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.07);
 }
 
-/* ── Badges ──────────────────────────────────────────────────── */
+/* ── Hover effect for role selection cards on register_choice and login_choice pages ─────────────── */
+.role-choice-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.role-choice-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Badges (Custom compact styling for match scores, case status, score breakdown points, and photo overlay tags)  ──────────────────────────────────────────────────── */
 .badge {
     font-size: 0.72rem;
     font-weight: 600;
@@ -331,18 +339,22 @@ main {
 .list-group-item { font-size: 0.88rem; border-color: #e9ecef; }
 .list-group-item:first-child { border-top: none; }
 
+
 /* ── Dashboard card quick links ──────────────────────────────── */
+/* ── Customizing <a> tags with Custom style ────── */
 a.card { color: inherit; text-decoration: none; }
 a.card:hover .card-body { background-color: #f8f9ff; border-radius: 8px; }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+
+/* ── Responsive (For Phones and small screens) ─────────────────── */
 @media (max-width: 576px) {
     .khoj-hero { padding: 3rem 0; }
     .khoj-hero h1 { font-size: 2rem; }
     .photo-thumb-lg { width: 100px; height: 100px; }
 }
 
-/* ── Print ───────────────────────────────────────────────────── */
+
+/* ── Print (Triggers only when a user prints the page or saves it as a PDF) ─────── */
 @media print {
-    .khoj-navbar, .khoj-footer, .btn, .alert .btn-close { display: none !important; }
+    .khoj-navbar, .khoj-footer, .btn, .alert .btn-close { display: none !important; } /* Hides non-essential website UI (top navbar, bottom footer, action buttons, and alert close buttons) */
 }
