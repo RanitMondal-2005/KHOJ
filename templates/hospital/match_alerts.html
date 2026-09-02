@@ -4,6 +4,7 @@
 {% block content %}
 <div class="container py-4">
 
+  <!-- ── PAGE HEADER ─────────────────────────────────────────── -->
   <h4 class="fw-bold mb-1">Match Alerts</h4>
   <p class="text-muted small mb-4">
     Potential matches between your patients and missing person reports.
@@ -13,46 +14,82 @@
   {% if matches %}
   {% for match in matches %}
 
+  <!-- ── MATCH ALERT CARD ────────────────────────────────────── -->
   <div class="card mb-4" style="border-radius:12px; border:1px solid #e3e8ef; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
     <div class="card-body p-4">
 
+      <!-- ── TOP SECTION: COMPARISON ROW ───────────────────────── -->
       <div class="row g-4">
 
-        <!-- LEFT: your patient info (text only, no photos of your own patient) -->
+        <!-- Column 1: Hospital Unidentified Patient Overview (Left) -->
         <div class="col-md-3">
           <div class="text-muted small fw-semibold mb-2 text-uppercase"
                style="font-size:0.68rem; letter-spacing:0.06em;">Your Patient</div>
           <div class="fw-semibold mb-1">
             {{ match.unidentified_patient.estimated_name|default:"Unknown Patient" }}
           </div>
-          <div class="text-muted small">
+          <div class="text-muted small mb-2">
             <i class="bi bi-geo-alt me-1"></i>{{ match.unidentified_patient.found_location }}<br>
             <i class="bi bi-calendar me-1"></i>Admitted: {{ match.unidentified_patient.admission_date }}<br>
             {{ match.unidentified_patient.get_gender_display }}, ~{{ match.unidentified_patient.age }} yrs
           </div>
+
+          <!-- Patient Image Slider (Cycles hospital intake photos) -->
+          <div class="police-patient-slider mb-2"
+               style="position:relative; width:100%; border-radius:8px; overflow:hidden; background:#f1f3f5;">
+            {% if match.unidentified_patient.face_image %}
+            <img src="{{ match.unidentified_patient.face_image.url }}"
+                 class="pol-slide-img"
+                 style="width:100%; height:180px; object-fit:cover; display:block; border-radius:8px;"
+                 alt="Patient face">
+            {% endif %}
+            {% if match.unidentified_patient.full_body_image %}
+            <img src="{{ match.unidentified_patient.full_body_image.url }}"
+                 class="pol-slide-img"
+                 style="width:100%; height:180px; object-fit:cover; display:none; border-radius:8px;"
+                 alt="Patient full body">
+            {% endif %}
+            {% if match.unidentified_patient.side_profile_image %}
+            <img src="{{ match.unidentified_patient.side_profile_image.url }}"
+                 class="pol-slide-img"
+                 style="width:100%; height:180px; object-fit:cover; display:none; border-radius:8px;"
+                 alt="Patient side profile">
+            {% endif %}
+
+            <!-- Slider Pagination Indicators -->
+            <div style="position:absolute; bottom:6px; left:0; right:0; text-align:center;">
+              <span class="pol-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:1;"></span>
+              <span class="pol-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:0.4;"></span>
+              <span class="pol-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:0.4;"></span>
+            </div>
+            
+            <!-- Photo Category Badge -->
+            <div style="position:absolute;top:6px;left:6px;">
+              <span class="badge bg-dark" style="font-size:0.6rem;opacity:0.8;">Hospital Photos</span>
+            </div>
+          </div>
+
+          <!-- Patient Identification Status Badge -->
           {% if match.unidentified_patient.status == 'UNIDENTIFIED' %}
-          <span class="badge bg-warning text-dark mt-2 d-inline-block">UNIDENTIFIED</span>
+          <span class="badge bg-warning text-dark mt-1 d-inline-block">UNIDENTIFIED PATIENT</span>
           {% else %}
-          <span class="badge bg-success mt-2 d-inline-block">IDENTIFIED</span>
+          <span class="badge bg-success mt-1 d-inline-block">IDENTIFIED PATIENT</span>
           {% endif %}
         </div>
 
-        <!-- ARROW -->
+        <!-- Column 2: Visual Comparison Divider -->
         <div class="col-md-1 d-flex align-items-center justify-content-center">
           <i class="bi bi-arrow-left-right fs-4 text-muted"></i>
         </div>
 
-        <!-- CENTER: missing person details + family's 2 uploaded photos -->
+        <!-- Column 3: Matching Missing Person Record & Family Contact (Center) -->
         <div class="col-md-5">
           <div class="text-muted small fw-semibold mb-2 text-uppercase"
                style="font-size:0.68rem; letter-spacing:0.06em;">Missing Person Report</div>
 
           <div class="fw-bold fs-6 mb-2">{{ match.missing_person.person_name }}</div>
 
-          <!--
-            Hospital sees the 2 photos uploaded by the family (passport + full body).
-            These cycle in a slider so hospital can compare against their patient.
-          -->
+          <!-- Family Photo Slider (Cycles passport and full-body images uploaded by filer) -->
           <div class="hosp-mp-slider mb-3"
                style="position:relative; width:100%; max-width:240px; border-radius:8px; overflow:hidden; background:#f1f3f5;">
             {% if match.missing_person.passport_photo %}
@@ -68,11 +105,13 @@
                  alt="Full body photo">
             {% endif %}
 
-            <!-- dot indicators -->
+            <!-- Slider Pagination Indicators -->
             <div style="position:absolute; bottom:6px; left:0; right:0; text-align:center;">
               <span class="hosp-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:1;"></span>
               <span class="hosp-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin:0 2px;opacity:0.4;"></span>
             </div>
+
+            <!-- Photo Category Badge -->
             <div style="position:absolute;top:6px;left:6px;">
               <span class="badge bg-dark" style="font-size:0.6rem;opacity:0.8;">Family Photos</span>
             </div>
@@ -81,7 +120,7 @@
             <i class="bi bi-images me-1"></i>2 photos · auto-cycles every 2.5s
           </div>
 
-          <!-- person details below slider -->
+          <!-- Missing Person Physical Attributes -->
           <div class="row g-1 small">
             <div class="col-5 text-muted">Age</div><div class="col-7 fw-semibold">{{ match.missing_person.age }} yrs</div>
             <div class="col-5 text-muted">Gender</div><div class="col-7 fw-semibold">{{ match.missing_person.get_gender_display }}</div>
@@ -96,7 +135,7 @@
             {% endif %}
           </div>
 
-          <!-- family contact box -->
+          <!-- Filer / Family Direct Contact Information -->
           <div class="mt-3 p-2 rounded" style="background:#f0fdf4; border:1px solid #bbf7d0;">
             <div class="small fw-semibold text-success mb-1">
               <i class="bi bi-person-check me-1"></i>Contact (Report Filed By)
@@ -114,17 +153,22 @@
           </div>
         </div>
 
-        <!-- RIGHT: score + dismiss -->
+        <!-- Column 4: Confidence Score & Dismiss Action (Right) -->
         <div class="col-md-3 text-center d-flex flex-column align-items-center justify-content-start pt-2">
+          <!-- Overall Confidence Percentage -->
           <div style="font-size:2.8rem; font-weight:800; line-height:1;
                color:{% if match.confidence_score >= 80 %}#198754{% elif match.confidence_score >= 60 %}#f59e0b{% else %}#6c757d{% endif %};">
             {{ match.confidence_score }}%
           </div>
+          
+          <!-- Semantic Label Badge (High, Medium, Low) -->
           <div class="badge bg-{{ match.confidence_label.1 }} mt-1 mb-2 px-3 py-1"
                style="font-size:0.72rem;">
             {{ match.confidence_label.0 }} MATCH
           </div>
           <div class="text-muted small mb-3">{{ match.created_at|date:"d M Y" }}</div>
+
+          <!-- Dismiss Action Form / Button -->
           <a href="{% url 'hospital:reject_match' match.pk %}"
              class="btn btn-outline-secondary btn-sm px-3"
              onclick="return confirm('Dismiss this match from your view?')">
@@ -134,7 +178,7 @@
 
       </div><!-- end top row -->
 
-      <!-- ── SCORE BREAKDOWN ── -->
+      <!-- ── BOTTOM SECTION: MATCH SCORE BREAKDOWN ─────────────── -->
       <div class="mt-4 pt-3" style="border-top:1px solid #e9ecef;">
         <div class="small fw-semibold mb-3" style="color:#374151;">
           <i class="bi bi-bar-chart-fill me-1 text-primary"></i>Match Score Breakdown
@@ -143,59 +187,74 @@
 
         {% if match.score_breakdown %}
         <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0" style="font-size:0.82rem;">
+          <table class="table table-sm table-hover align-middle mb-0" style="font-size:0.82rem;">
             <thead>
               <tr style="background:#f8fafc;">
-                <th style="width:30%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em;">Factor</th>
-                <th class="text-center" style="width:15%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase;">Max</th>
-                <th class="text-center" style="width:15%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase;">Scored</th>
-                <th style="width:40%; color:#6b7280; font-weight:600; font-size:0.72rem; text-transform:uppercase;">Bar</th>
+                <th style="width:30%;">Factor</th>
+                <th class="text-center" style="width:20%;">Max</th>
+                <th class="text-center" style="width:20%;">Scored</th>
+                <th style="width:30%;">Bar</th>
               </tr>
             </thead>
             <tbody>
               {% with b=match.score_breakdown %}
+              <!-- Factor: Gender Compatibility -->
               <tr>
                 <td><i class="bi bi-gender-ambiguous me-1 text-muted"></i>Gender</td>
                 <td class="text-center text-muted">20</td>
                 <td class="text-center">{% if b.gender %}<span class="badge bg-success">+{{ b.gender }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.gender %}#198754{% else %}#dee2e6{% endif %};width:{% if b.gender %}{{ b.gender|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
+
+              <!-- Factor: Blood Group Match -->
               <tr>
                 <td><i class="bi bi-droplet me-1 text-muted"></i>Blood Group</td>
                 <td class="text-center text-muted">15</td>
                 <td class="text-center">{% if b.blood_group %}<span class="badge bg-success">+{{ b.blood_group }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.blood_group %}#198754{% else %}#dee2e6{% endif %};width:{% if b.blood_group %}{{ b.blood_group|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
+
+              <!-- Factor: Age Proximity -->
               <tr>
                 <td><i class="bi bi-calendar me-1 text-muted"></i>Age</td>
                 <td class="text-center text-muted">15</td>
                 <td class="text-center">{% if b.age %}<span class="badge bg-primary">+{{ b.age }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.age %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.age %}{{ b.age|floatformat:0 }}{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
+
+              <!-- Factor: Height Range -->
               <tr>
                 <td><i class="bi bi-arrows-vertical me-1 text-muted"></i>Height</td>
                 <td class="text-center text-muted">10</td>
                 <td class="text-center">{% if b.height %}<span class="badge bg-primary">+{{ b.height }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.height %}#0d6efd{% else %}#dee2e6{% endif %};width:{% if b.height %}{{ b.height|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
+
+              <!-- Factor: Geographic District Alignment -->
               <tr>
                 <td><i class="bi bi-geo-alt me-1 text-muted"></i>District</td>
                 <td class="text-center text-muted">10</td>
                 <td class="text-center">{% if b.district %}<span class="badge bg-success">+{{ b.district }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.district %}#198754{% else %}#dee2e6{% endif %};width:{% if b.district %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
               </tr>
+
+              <!-- Factor: Identifying Marks Alignment -->
               <tr>
                 <td><i class="bi bi-body-text me-1 text-muted"></i>Marks</td>
                 <td class="text-center text-muted">10</td>
                 <td class="text-center">{% if b.marks %}<span class="badge bg-warning text-dark">+{{ b.marks }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.marks %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.marks %}{{ b.marks|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
+
+              <!-- Factor: Clothing & Attire Description -->
               <tr>
                 <td><i class="bi bi-person-standing me-1 text-muted"></i>Clothing</td>
                 <td class="text-center text-muted">10</td>
                 <td class="text-center">{% if b.clothing %}<span class="badge bg-warning text-dark">+{{ b.clothing }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.clothing %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.clothing %}{{ b.clothing|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
+
+              <!-- Factor: Facial Feature Similarity (Optional AI module) -->
               {% if b.face_match %}
               <tr>
                   <td><i class="bi bi-camera-fill me-1 text-muted"></i>Face Similarity</td>
@@ -210,24 +269,32 @@
                   </td>
               </tr>
               {% endif %}
+
+              <!-- Factor: Eye Color Comparison -->
               <tr>
                 <td><i class="bi bi-eye me-1 text-muted"></i>Eye Color</td>
                 <td class="text-center text-muted">5</td>
                 <td class="text-center">{% if b.eye_color %}<span class="badge bg-secondary">+{{ b.eye_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.eye_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.eye_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
               </tr>
+
+              <!-- Factor: Hair Color Comparison -->
               <tr>
                 <td><i class="bi bi-person me-1 text-muted"></i>Hair Color</td>
                 <td class="text-center text-muted">5</td>
                 <td class="text-center">{% if b.hair_color %}<span class="badge bg-secondary">+{{ b.hair_color }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.hair_color %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.hair_color %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
               </tr>
+
+              <!-- Factor: Skin Tone Comparison -->
               <tr>
                 <td><i class="bi bi-palette me-1 text-muted"></i>Skin Tone</td>
                 <td class="text-center text-muted">5</td>
                 <td class="text-center">{% if b.skin_tone %}<span class="badge bg-secondary">+{{ b.skin_tone }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.skin_tone %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.skin_tone %}100{% else %}0{% endif %}%;height:8px;border-radius:4px;"></div></div></td>
               </tr>
+
+              <!-- Factor: Weight Range Comparison -->
               <tr>
                 <td><i class="bi bi-circle me-1 text-muted"></i>Weight</td>
                 <td class="text-center text-muted">5</td>
@@ -235,13 +302,17 @@
                 <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.weight %}#6c757d{% else %}#dee2e6{% endif %};width:{% if b.weight %}{{ b.weight|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
               </tr>
               {% endwith %}
-              <tr style="background:#f8fafc; border-top:2px solid #e9ecef;">
-                <td class="fw-bold">Total Score</td>
-                <td class="text-center text-muted fw-semibold">100</td>
-                <td class="text-center"><span class="badge bg-{{ match.confidence_label.1 }} px-2">{{ match.confidence_score }}%</span></td>
-                <td>
-                  <div style="background:#e9ecef;border-radius:4px;height:10px;">
-                    <div style="background:{% if match.confidence_score >= 80 %}#198754{% elif match.confidence_score >= 60 %}#f59e0b{% else %}#6c757d{% endif %};width:{{ match.confidence_score|floatformat:0 }}%;height:10px;border-radius:4px;"></div>
+
+              <!-- Total Aggregated Score Row -->
+              <tr style="border-top: 2px solid #e2e8f0;">
+                <td class="fw-bold" style="background-color: #f1f5f9;">Total Score</td>
+                <td class="text-center text-muted fw-semibold" style="background-color: #f8fafc;">100</td>
+                <td class="text-center" style="background-color: #f8fafc;">
+                  <span class="badge bg-{{ match.confidence_label.1 }} px-2">{{ match.confidence_score }}%</span>
+                </td>
+                <td style="background-color: #f8fafc;">
+                  <div style="background: #e9ecef; border-radius: 4px; height: 10px; overflow: hidden;">
+                    <div style="background: {% if match.confidence_score >= 80 %}#198754{% elif match.confidence_score >= 60 %}#f59e0b{% else %}#6c757d{% endif %}; width: {{ match.confidence_score|floatformat:0 }}%; height: 10px; border-radius: 4px; max-width: 100%;"></div>
                   </div>
                 </td>
               </tr>
@@ -249,6 +320,7 @@
           </table>
         </div>
         {% else %}
+        <!-- Fallback message for legacy matches without stored breakdowns -->
         <p class="text-muted small mb-0">Score breakdown not available for this match.</p>
         {% endif %}
       </div>
@@ -258,6 +330,7 @@
   {% endfor %}
 
   {% else %}
+  <!-- ── EMPTY STATE NOTIFICATION ────────────────────────────── -->
   <div class="text-center text-muted py-5">
     <i class="bi bi-bell-slash fs-1 d-block mb-3 opacity-50"></i>
     <p class="fw-semibold">No match alerts at the moment.</p>
@@ -268,20 +341,48 @@
 </div>
 {% endblock %}
 
+<!-- ── SCRIPTS: PHOTO SLIDER LOGIC ───────────────────────────── -->
 {% block extra_js %}
 <script>
-// hospital side: cycles through the 2 family-uploaded photos (passport + full body)
+// Cycle unidentified patient photos (left panel)
+document.querySelectorAll('.police-patient-slider').forEach(function(slider) {
+    var imgs = slider.querySelectorAll('.pol-slide-img');
+    var dots = slider.querySelectorAll('.pol-dot');
+    var current = 0;
+    
+    // Skip records with one or zero photos
+    if (imgs.length <= 1) return;
+
+    // Rotate images every 2.5 seconds
+    setInterval(function() {
+        imgs[current].style.display = 'none';
+        if (dots[current]) dots[current].style.opacity = '0.4';
+        
+        current = (current + 1) % imgs.length;
+        
+        imgs[current].style.display = 'block';
+        if (dots[current]) dots[current].style.opacity = '1';
+    }, 2500);
+});
+
+// Cycle missing person report photos uploaded by the family (center panel)
 document.querySelectorAll('.hosp-mp-slider').forEach(function(slider) {
     var imgs = slider.querySelectorAll('.hosp-slide-img');
     var dots = slider.querySelectorAll('.hosp-dot');
     var current = 0;
+    
+    // Skip records with one or zero photos
     if (imgs.length <= 1) return;
+
+    // Rotate images every 2.5 seconds
     setInterval(function() {
         imgs[current].style.display = 'none';
-        dots[current].style.opacity = '0.4';
+        if (dots[current]) dots[current].style.opacity = '0.4';
+        
         current = (current + 1) % imgs.length;
+        
         imgs[current].style.display = 'block';
-        dots[current].style.opacity = '1';
+        if (dots[current]) dots[current].style.opacity = '1';
     }, 2500);
 });
 </script>
