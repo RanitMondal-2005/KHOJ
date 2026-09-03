@@ -1,15 +1,21 @@
+<!--
+  add_patient.html :
+  - The Big Form to be filled by Hospital for Unidentified Patients.
+-->
+
 {% extends 'base.html' %}
 {% block title %}Add Patient{% endblock %}
 {% block content %}
 <div class="container py-4" style="max-width:820px;">
-
+  <!--------------------- HEADER --------------------->
   <a href="{% url 'hospital:view_patients' %}" class="text-muted small">
     <i class="bi bi-arrow-left me-1"></i>Back to Patients
   </a>
   <h4 class="fw-bold mt-2 mb-1">Add Unidentified Patient Record</h4>
   <p class="text-muted small mb-4">Fill in as many details as possible to improve match accuracy.</p>
 
-  <form method="post" enctype="multipart/form-data">
+  <!--------------------- FORM CARD --------------------->
+  <form method="post" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
 
     <!-- physical description -->
@@ -80,6 +86,9 @@
           <div class="col-md-6">
             <label class="form-label">ID Type</label>
             {{ form.found_id_type }}
+            {% if form.found_id_type.errors %}
+            <div class="text-danger small mt-1">{{ form.found_id_type.errors.0 }}</div>
+            {% endif %}
           </div>
           <div class="col-md-6">
             <label class="form-label">
@@ -104,16 +113,32 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-8">
-            <label class="form-label">Found Location *</label>{{ form.found_location }}
+            <label class="form-label">Found Location *</label>
+            {{ form.found_location }}
+            {% if form.found_location.errors %}
+            <div class="text-danger small mt-1">{{ form.found_location.errors.0 }}</div>
+            {% endif %}
           </div>
           <div class="col-md-4">
-            <label class="form-label">District *</label>{{ form.district }}
+            <label class="form-label">District *</label>
+            {{ form.district }}
+            {% if form.district.errors %}
+            <div class="text-danger small mt-1">{{ form.district.errors.0 }}</div>
+            {% endif %}
           </div>
           <div class="col-md-4">
-            <label class="form-label">Admission Date *</label>{{ form.admission_date }}
+            <label class="form-label">Admission Date *</label>
+            {{ form.admission_date }}
+            {% if form.admission_date.errors %}
+            <div class="text-danger small mt-1">{{ form.admission_date.errors.0 }}</div>
+            {% endif %}
           </div>
           <div class="col-12">
-            <label class="form-label">Condition / Notes</label>{{ form.condition_notes }}
+            <label class="form-label">Condition / Notes</label>
+            {{ form.condition_notes }}
+            {% if form.condition_notes.errors %}
+            <div class="text-danger small mt-1">{{ form.condition_notes.errors.0 }}</div>
+            {% endif %}
           </div>
         </div>
       </div>
