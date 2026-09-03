@@ -46,8 +46,8 @@ class MissingPerson(models.Model):
     height = models.PositiveIntegerField(help_text="Height in cm")
     weight = models.PositiveIntegerField(help_text="Weight in kg")
     blood_group = models.CharField(max_length=10, choices=BLOOD_GROUP_CHOICES, default='UNKNOWN')
-    eye_color = models.CharField(max_length=50)
-    hair_color = models.CharField(max_length=50)
+    eye_color = models.CharField(max_length=15)
+    hair_color = models.CharField(max_length=15)
     skin_tone = models.CharField(max_length=20, choices=SKIN_TONE_CHOICES, default='UNKNOWN')
     identifying_marks = models.TextField(blank=True)
     clothing_description = models.TextField(blank=True)
@@ -64,7 +64,7 @@ class MissingPerson(models.Model):
         help_text="Your relation to the missing person"
     )
     filer_contact = models.CharField(
-        max_length=15,
+        max_length=10,
         help_text="Your contact number"
     )
     filer_email = models.EmailField(
@@ -73,8 +73,8 @@ class MissingPerson(models.Model):
     )
 
     # ── location ────────────────────────────────────────────────
-    last_seen_location = models.CharField(max_length=255)
-    district = models.CharField(max_length=100)
+    last_seen_location = models.CharField(max_length=150)
+    district = models.CharField(max_length=50)
     last_seen_date = models.DateField()
 
     # photos - both required
@@ -85,8 +85,8 @@ class MissingPerson(models.Model):
     contact_number = models.CharField(max_length=15, blank=True)
 
     # police info - optional
-    fir_number = models.CharField(max_length=100, blank=True)
-    police_station_name = models.CharField(max_length=200, blank=True)
+    fir_number = models.CharField(max_length=30, blank=True)
+    police_station_name = models.CharField(max_length=100, blank=True)
 
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
     created_at = models.DateTimeField(auto_now_add=True)

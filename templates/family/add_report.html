@@ -27,7 +27,12 @@
     {% else %}
     
     <!-- ────── MISSING PERSON'S REPORT FORM (To be filled by Family Members) ── -->
-    <form method="post" enctype="multipart/form-data"> <!-- enctype is required for file uploads, which here are images -->
+    <form method="post" enctype="multipart/form-data" novalidate> <!-- enctype is required for file uploads, which here are images -->
+        <!-- 
+            novalidate disables browser frontend validation tooltips (which caused issues like 
+            blocking submission so we need to use JS to display the errors dynamically then). So, Instead, we rely entirely on Django's 
+            clean_*() methods to handle validation and render custom red error messages.
+        -->
         {% csrf_token %}
 
         <!-- ── SECTION 1: MISSING PERSON'S DETAILS ─────────────── -->
