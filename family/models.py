@@ -31,7 +31,7 @@ class MissingPerson(models.Model):
         ('FATHER', 'Father'), ('MOTHER', 'Mother'),
         ('BROTHER', 'Brother'), ('SISTER', 'Sister'),
         ('SPOUSE', 'Spouse'), ('SON', 'Son'), ('DAUGHTER', 'Daughter'),
-        ('RELATIVE', 'Other Relative'), ('FRIEND', 'Friend'),
+        ('RELATIVE', 'Relative'), ('FRIEND', 'Friend'),
         ('GUARDIAN', 'Guardian'), ('OTHER', 'Other'),
     ]
     # Connecting the user who filled the report as the linked family user
