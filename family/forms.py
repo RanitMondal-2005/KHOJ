@@ -7,7 +7,7 @@ MissingPersonForm - For Family Members
 import re # Python's built-in module for working with regex
 from django import forms
 from .models import MissingPerson, CaseUpdate
-
+from datetime import date as dt_date # Python’s built-in date class 
 
 class MissingPersonForm(forms.ModelForm):
 
@@ -84,6 +84,8 @@ class MissingPersonForm(forms.ModelForm):
             'last_seen_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
+                'max': dt_date.today().isoformat(),  # Greys out all future dates in the browser picker
+                # dt_date.today()-> creates a Python date object in memory (like datetime.date(2026, 9, 3)); Calling-> .isoformat() on that object produces a string:"2026-09-03";we need strings as browsers can understand them.
             }),
             'fir_number': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -156,6 +158,36 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Contact number must be exactly 10 digits.")
         return contact
 
+    # VALIDATION 7 : last_seen_location
+    def clean_last_seen_location(self):
+        location = self.cleaned_data.get('last_seen_location', '').strip()
+        if not location:
+            raise forms.ValidationError("Last seen location is required.")
+        if len(location) < 3:
+            raise forms.ValidationError("Location details must be at least 3 characters long.")
+        if not re.match(r"^[A-Za-z0-9\s.,#'\-/]+$", location):
+            raise forms.ValidationError("Location contains invalid characters.")
+        return location
+
+    # VALIDATION 8 : district
+    def clean_district(self):
+        district = self.cleaned_data.get('district', '').strip()
+        if not district:
+            raise forms.ValidationError("District is required.")
+        if len(district) < 2:
+            raise forms.ValidationError("District name must be at least 2 characters long.")
+        if not re.match(r"^[A-Za-z0-9\s.'-]+$", district):
+            raise forms.ValidationError("District can only contain letters, numbers, spaces, periods, apostrophes, or hyphens.")
+        return district
+
+    # VALIDATION 9 : last_seen_date
+    def clean_last_seen_date(self):
+        date = self.cleaned_data.get('last_seen_date')
+        if not date:
+            raise forms.ValidationError("Last seen date is required.")
+        if date > dt_date.today(): 
+            raise forms.ValidationError("Last seen date cannot be in the future.")
+        return date
 
 class CaseUpdateForm(forms.ModelForm):
 

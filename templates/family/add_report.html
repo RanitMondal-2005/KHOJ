@@ -61,6 +61,7 @@
                     <div class="col-md-3">
                         <label class="form-label">Gender *</label>
                         {{ form.gender }}
+                        {% if form.gender.errors %}<div class="text-danger small mt-1">{{ form.gender.errors.0 }}</div>{% endif %}
                     </div>
 
                     <!-- Physical Metric: Height -->
@@ -166,18 +167,27 @@
                     <div class="col-md-8">
                         <label class="form-label">Last Seen Location *</label>
                         {{ form.last_seen_location }}
+                        {% if form.last_seen_location.errors %}
+                            <div class="text-danger small mt-1">{{ form.last_seen_location.errors.0 }}</div>
+                        {% endif %}
                     </div>
 
                     <!-- Geographic Administrative District -->
                     <div class="col-md-4">
                         <label class="form-label">District *</label>
                         {{ form.district }}
+                        {% if form.district.errors %}
+                            <div class="text-danger small mt-1">{{ form.district.errors.0 }}</div>
+                        {% endif %}
                     </div>
 
                     <!-- Sighting Date -->
                     <div class="col-md-4">
                         <label class="form-label">Last Seen Date *</label>
                         {{ form.last_seen_date }}
+                        {% if form.last_seen_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.last_seen_date.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
