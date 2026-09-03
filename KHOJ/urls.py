@@ -12,7 +12,6 @@ urlpatterns = [
     path('family/', include('family.urls')),
     path('hospital/', include('hospital.urls')),
     path('police/', include('police.urls')),
-    path('matching/', include('matching.urls')),
     path('notifications/', include('notifications.urls')),
 ]
 
