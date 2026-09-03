@@ -1,9 +1,16 @@
+<!--
+  archived_cases.html	: 
+  - Table of all resolved/closed cases with basic details.
+-->
+
 {% extends 'base.html' %}
 {% block title %}Archived Cases{% endblock %}
 {% block content %}
 <div class="container py-4">
+  <!-- ── SECTION HEADER ──────────────────────────────────────── -->
   <h4 class="fw-semibold mb-4">Archived Cases</h4>
   {% if cases %}
+  <!-- ── ARCHIVED CASES TABLE ────────────────────────────── -->
   <div class="table-responsive">
     <table class="table table-hover align-middle">
       <thead class="table-light">
@@ -14,9 +21,16 @@
       <tbody>
         {% for case in cases %}
         <tr>
+          <!-- Missing Person Identity -->
           <td class="fw-semibold">{{ case.person_name }}</td>
+
+          <!-- Geographic Administrative District -->
           <td>{{ case.district }}</td>
+
+          <!-- Date Missing / Last Sighted -->
           <td>{{ case.last_seen_date }}</td>
+
+          <!-- Final Resolution Status Indicator -->
           <td>
             {% if case.status == 'FOUND' %}
             <span class="badge bg-success">FOUND</span>
@@ -24,6 +38,8 @@
             <span class="badge bg-secondary">CLOSED</span>
             {% endif %}
           </td>
+
+          <!-- Case Archived / Closed Date -->
           <td class="text-muted small">{{ case.updated_at|date:"d M Y" }}</td>
         </tr>
         {% endfor %}
@@ -31,6 +47,7 @@
     </table>
   </div>
   {% else %}
+  <!-- ── EMPTY STATE DISPLAY ─────────────────────────────────── -->
   <div class="text-center text-muted py-5">
     <i class="bi bi-archive fs-1 d-block mb-2"></i>No archived cases yet.
   </div>

@@ -1,23 +1,32 @@
+<!-- 
+  report_detail.html :
+	- Individual Report Specific all details.(Photos,Case Updates,Potential Matches all for that particular report...)
+-->
+
 {% extends 'base.html' %}
 {% block title %}{{ report.person_name }} - Report{% endblock %}
 {% block content %}
+<!-- ── DETAILED MISSING PERSON REPORT ──────────────── -->
 <div class="container py-4">
+  <!-- Navigation Backlink -->
   <a href="{% url 'family:my_reports' %}" class="text-muted small">
     <i class="bi bi-arrow-left me-1"></i>Back to Reports
   </a>
 
   <div class="row g-4 mt-1">
 
-    <!-- LEFT Side of the pg: photo + quick info + actions -->
+    <!--─────────── LEFT COLUMN : photo + quick info + actions ───────────-->
     <div class="col-lg-4">
       <div class="card">
         <div class="card-body text-center">
+          <!-- Primary Passport / Facial Photo Preview -->
           {% if report.passport_photo %}
           <img src="{{ report.passport_photo.url }}" class="photo-thumb-lg mb-3" alt="Photo">
           {% endif %}
           <h5 class="fw-semibold mb-1">{{ report.person_name }}</h5>
           <span class="badge bg-primary">{{ report.status }}</span>
           <hr>
+          <!-- Physical Identifiers -->
           <div class="text-start small">
             <div class="row g-1">
               <div class="col-5 text-muted">Age</div><div class="col-7">{{ report.age }} yrs</div>
@@ -31,6 +40,7 @@
             </div>
           </div>
         </div>
+        <!-- Full-Body Photo Preview Footer -->
         {% if report.full_body_photo %}
         <div class="card-footer bg-white text-center">
           <img src="{{ report.full_body_photo.url }}" class="photo-thumb-lg" alt="Full body photo">
@@ -38,7 +48,7 @@
         {% endif %}
       </div>
 
-      <!-- action buttons -->
+      <!-- ── ACTION CONTROLS ───────────────────────────────────── -->
       <div class="card mt-3">
         <div class="card-body">
           <p class="fw-semibold small mb-2">Actions</p>
@@ -56,10 +66,10 @@
       </div>
     </div>
 
-  <!-- RIGHT side of the pg: location, matches, case updates -->
+    <!--─────────── RIGHT COLUMN: location, matches, case updates ───────────-->
     <div class="col-lg-8">
 
-      <!-- location & details -->
+      <!-- SECTION 1 : location & details -->
       <div class="card mb-3">
         <div class="card-body">
           <h6 class="fw-semibold mb-3">Location & Details</h6>
@@ -97,7 +107,7 @@
         </div>
       </div>
 
-      <!-- potential matches -->
+      <!-- SECTION 2: potential hospital matches with their Emergency Contract -->
       <div class="card mb-3">
         <div class="card-header bg-white fw-semibold">
           Potential Matches ({{ matches|length }})
@@ -148,7 +158,7 @@
         </div>
       </div>
 
-    <!-- case updates timeline -->
+      <!-- SECTION 3 : case updates timeline -->
       <div class="card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
           <span class="fw-semibold">Search Updates & Clues</span>
@@ -179,7 +189,7 @@
                 {% endif %}
               </div>
 
-            <!-- Update Results -->
+            <!-- Case Update Results -->
 
               <!-- the actual note text for that update details -->
               <p class="mb-1 small">{{ update.note }}</p>

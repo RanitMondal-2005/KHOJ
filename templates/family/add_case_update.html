@@ -1,24 +1,40 @@
+<!--
+  add_case_update.html :
+  - Small form — add a clue or search progress note to a specific case (To keep All records of the links found at one place for that particular case).
+-->
+
 {% extends 'base.html' %}
 {% block title %}Add Case Update{% endblock %}
 {% block content %}
 <div class="container py-4" style="max-width:600px;">
+  <!-- Navigation Backlink to Report Details -->
   <a href="{% url 'family:report_detail' report.pk %}" class="text-muted small"><i class="bi bi-arrow-left me-1"></i>Back to Report</a>
+
+  <!-- Header & Instructions -->
   <h4 class="fw-semibold mt-2 mb-1">Add Update for {{ report.person_name }}</h4>
   <p class="text-muted small mb-4">Add any clue, search progress, or new information you've found.</p>
+
+  <!-- ── CASE UPDATE FORM ────────────────────────────────────────────── -->
   <div class="card">
     <div class="card-body">
       <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+
+        <!-- Update / Clue Text Field -->
         <div class="mb-3">
           <label class="form-label">Update / Clue *</label>
           {{ form.note }}
           {% if form.note.errors %}<div class="text-danger small">{{ form.note.errors.0 }}</div>{% endif %}
           <div class="form-text">Examples: "Phone active near Dum Dum metro", "Spotted near Howrah station", "Wearing blue shirt"</div>
         </div>
+
+        <!-- Optional Image Attachment -->
         <div class="mb-3">
           <label class="form-label">Attach Image (Optional)</label>
           {{ form.optional_image }}
         </div>
+
+        <!-- Action Buttons -->
         <button type="submit" class="btn btn-primary">Save Update</button>
         <a href="{% url 'family:report_detail' report.pk %}" class="btn btn-outline-secondary ms-2">Cancel</a>
       </form>

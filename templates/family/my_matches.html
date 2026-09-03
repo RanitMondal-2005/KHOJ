@@ -1,3 +1,8 @@
+<!-- 
+  my_matches.html :
+  - All potential matches for all acive reports — with score breakdown table and hospital contact details.
+-->
+
 {% extends 'base.html' %}
 {% block title %}My Matches{% endblock %}
 
@@ -21,7 +26,7 @@
       <!-- ── TOP SECTION: COMPARISON & OVERVIEW ───────────────── -->
       <div class="row g-4">
 
-        <!-- Column 1: Family Report Preview & Photos (Left) -->
+        <!--------------- Column 1: Family Report Preview & Photos (Left) ----------------->
         <div class="col-md-3">
           <div class="text-muted small fw-semibold mb-2 text-uppercase" style="font-size:0.68rem; letter-spacing:0.06em;">
             Your Report
@@ -63,12 +68,12 @@
           <div class="text-muted text-center mt-1" style="font-size:0.7rem;">Auto-cycles · 2 photos</div>
         </div>
 
-        <!-- Column 2: Comparison Divider Arrow -->
+        <!----------------- Column 2: Comparison Divider Arrow ---------------------------------->
         <div class="col-md-1 d-flex align-items-center justify-content-center">
           <i class="bi bi-arrow-left-right fs-4 text-muted"></i>
         </div>
 
-        <!-- Column 3: Unidentified Hospital Patient Details (Center) -->
+        <!----------------- Column 3: Unidentified Hospital Patient Details (Center) --------------->
         <div class="col-md-5">
           <div class="text-muted small fw-semibold mb-2 text-uppercase" style="font-size:0.68rem; letter-spacing:0.06em;">
             Unidentified Patient
@@ -160,7 +165,7 @@
           
         </div>
 
-        <!-- Column 4: Confidence Score & Actions (Right) -->
+        <!----------------- Column 4: Confidence Score & Actions (Right) ----------------->
         <div class="col-md-3 text-center d-flex flex-column align-items-center justify-content-start pt-2">
           <!-- Numeric Score Percentage -->
           <div style="font-size:2.8rem; font-weight:800; line-height:1; color:{% if match.confidence_score >= 80 %}#198754{% elif match.confidence_score >= 60 %}#f59e0b{% else %}#6c757d{% endif %};">
@@ -179,9 +184,9 @@
              onclick="return confirm('Dismiss this match from your view?')">
             Dismiss
           </a>
-        </div>
+        </div> <!-- end TOP section -->
 
-      </div><!-- end top row -->
+      </div>
 
       <!-- ── LOWER SECTION: SCORING ENGINE BREAKDOWN ───────────── -->
       <div class="mt-4 pt-3" style="border-top:1px solid #e9ecef;">
@@ -259,7 +264,7 @@
                     <td><div style="background:#e9ecef;border-radius:4px;height:8px;"><div style="background:{% if b.clothing %}#f59e0b{% else %}#dee2e6{% endif %};width:{% if b.clothing %}{{ b.clothing|floatformat:0 }}0{% else %}0{% endif %}%;height:8px;border-radius:4px;max-width:100%;"></div></div></td>
                   </tr>
 
-                  <!-- Factor: Facial Feature Similarity (Optional AI/Vision module) -->
+                  <!-- Factor: Facial Feature Similarity -->
                   {% if b.face_match %}
                   <tr>
                       <td><i class="bi bi-camera-fill me-1 text-muted"></i>Face Similarity</td>
@@ -329,7 +334,7 @@
         <p class="text-muted small">Score breakdown not available for this match (generated before this feature was added).</p>
         {% endif %}
 
-      </div><!-- end score breakdown -->
+      </div><!-- end LOWER section -->
 
     </div>
   </div>

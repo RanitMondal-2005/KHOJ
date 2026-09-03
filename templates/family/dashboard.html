@@ -1,6 +1,12 @@
+<!-- 
+    dashboard.html :
+    - Home screen after login — shows active report count, recent matches, quick links For Family side.
+-->
+
 {% extends 'base.html' %}
 {% block title %}Family Dashboard{% endblock %}
 {% block content %}
+<!-- ── FAMILY OVERVIEW DASHBOARD ───────────────────── -->
 <div class="container py-4">
     <!-- -------------------------- Dashboard Header -------------------------- -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -8,6 +14,7 @@
             <h4 class="mb-0 fw-semibold">Welcome, {{ user.full_name }}</h4>
             <small class="text-muted">Family Dashboard</small>
         </div>
+        <!-- Quick Action: File New Missing Person Report -->
         <a href="{% url 'family:add_report' %}" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle me-1"></i>New Report
         </a>
@@ -26,12 +33,14 @@
                         </div>
                         <i class="bi bi-person-exclamation fs-2 text-primary opacity-50"></i>
                     </div>
+                    <!-- System Constraint Indicator (Max 3 active cases allowed per family account) -->
                     {% if active_count >= 3 %}
                     <div class="badge bg-warning text-dark mt-1">Limit reached (max 3)</div>
                     {% endif %}
                 </div>
             </div>
         </div>
+
         <!--- Box 2 : For Pending Matches -->
         <div class="col-sm-4">
             <div class="card stat-card border-warning shadow-sm">
@@ -46,6 +55,7 @@
                 </div>
             </div>
         </div>
+
         <!--- Box 3 : For Notifications -->
         <div class="col-sm-4">
             <div class="card stat-card border-success shadow-sm">
@@ -61,9 +71,10 @@
             </div>
         </div>
     </div>
+
     <!-- -------------------------- Main Content Area --------------------------  -->
     <div class="row g-4">
-        <!-- Active Reports -->
+        <!-- ── PANEL 1: ACTIVE REPORTS ───────────────────────────── -->
         <div class="col-lg-6">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -72,11 +83,13 @@
                 </div>
                 <div class="card-body p-0">
                     {% if active_reports %}
+                    <!-- Active Cases Feed -->
                     <ul class="list-group list-group-flush">
                         {% for report in active_reports %}
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="d-flex gap-3 align-items-center">
+                                    <!-- Thumbnail Preview -->
                                     {% if report.passport_photo %}
                                     <img src="{{ report.passport_photo.url }}" class="photo-thumb" alt="photo">
                                     {% endif %}
@@ -91,6 +104,7 @@
                         {% endfor %}
                     </ul>
                     {% else %}
+                    <!-- Empty State: No Active Reports -->
                     <div class="text-center text-muted py-4">
                         <i class="bi bi-clipboard-x fs-3 d-block mb-2 opacity-50"></i>
                         No active reports. <a href="{% url 'family:add_report' %}">File one now</a>
@@ -100,7 +114,7 @@
             </div>
         </div>
 
-        <!-- Recent Matches -->
+        <!-- ── PANEL 2: RECENT MATCHES ──────────────────────────── -->
         <div class="col-lg-6">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -109,6 +123,7 @@
                 </div>
                 <div class="card-body p-0">
                     {% if recent_matches %}
+                    <!-- Recent Matches Feed -->
                     <ul class="list-group list-group-flush">
                         {% for match in recent_matches %}
                         <li class="list-group-item">
@@ -117,6 +132,7 @@
                                     <div class="fw-semibold small">{{ match.missing_person.person_name }}</div>
                                     <small class="text-muted">{{ match.unidentified_patient.linked_hospital.hospital_profile.hospital_name }} &bull; {{ match.unidentified_patient.district }}</small>
                                 </div>
+                                <!-- Confidence Score Badge Color Coded by Tier -->
                                 <span class="badge {% if match.confidence_score >= 80 %}bg-success{% elif match.confidence_score >= 60 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
                                     {{ match.confidence_score }}%
                                 </span>
@@ -125,6 +141,7 @@
                         {% endfor %}
                     </ul>
                     {% else %}
+                    <!-- Empty State: No Matches Generated -->
                     <div class="text-center text-muted py-4">
                         <i class="bi bi-search fs-3 d-block mb-2 opacity-50"></i>
                         No matches found yet.
@@ -137,21 +154,28 @@
 
     <!-- ------------------- Quick Links To Navigate to different Sections ------------------- -->
     <div class="row g-3 mt-2">
+        <!-- Anchor: Intake Report Form -->
         <div class="col-6 col-md-3">
             <a href="{% url 'family:add_report' %}" class="btn btn-outline-primary w-100">
                 <i class="bi bi-plus-circle d-block fs-4 mb-1"></i>Add Report
             </a>
         </div>
+
+        <!-- Anchor: Match Comparison Dashboard -->
         <div class="col-6 col-md-3">
             <a href="{% url 'family:my_matches' %}" class="btn btn-outline-warning w-100">
                 <i class="bi bi-diagram-3 d-block fs-4 mb-1"></i>My Matches
             </a>
         </div>
+
+        <!-- Anchor: Notifications Feed -->
         <div class="col-6 col-md-3">
             <a href="{% url 'notifications:list' %}" class="btn btn-outline-success w-100">
                 <i class="bi bi-bell d-block fs-4 mb-1"></i>Notifications
             </a>
         </div>
+
+        <!-- Anchor: Archived & Closed Cases -->
         <div class="col-6 col-md-3">
             <a href="{% url 'family:archived_cases' %}" class="btn btn-outline-secondary w-100">
                 <i class="bi bi-archive d-block fs-4 mb-1"></i>Archived
