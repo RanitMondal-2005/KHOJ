@@ -40,36 +40,53 @@
                             <div class="col-md-6">
                                 <label class="form-label">Hospital Name</label>
                                 {{ form.hospital_name }}
+                                {% if form.hospital_name.errors %}<div class="text-danger small mt-1">{{ form.hospital_name.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Hospital Registration ID</label>
                                 {{ form.hospital_registration_id }}
+                                {% if form.hospital_registration_id.errors %}<div class="text-danger small mt-1">{{ form.hospital_registration_id.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">District</label>
                                 {{ form.district }}
+                                {% if form.district.errors %}<div class="text-danger small mt-1">{{ form.district.errors.0 }}</div>{% endif %}
                             </div>
                             
                             <div class="col-md-6">
                                 <label class="form-label">Emergency Contact</label>
                                 {{ form.emergency_contact }}
+                                {% if form.emergency_contact.errors %}<div class="text-danger small mt-1">{{ form.emergency_contact.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Hospital Email</label>
                                 {{ form.hospital_email }}
+                                {% if form.hospital_email.errors %}<div class="text-danger small mt-1">{{ form.hospital_email.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Address</label>
                                 {{ form.address }}
+                                {% if form.address.errors %}<div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>{% endif %}
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
                                 <label class="form-label">Password</label>
                                 {{ form.password }}
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Confirm Password</label>
                                 {{ form.confirm_password }}
+                                {% if form.confirm_password.errors %}
+                                    <div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>
+                                {% endif %}
                             </div>
                         </div>
                         {% if form.non_field_errors %}

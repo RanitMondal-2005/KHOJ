@@ -110,7 +110,7 @@ class HospitalProfile(models.Model):
     hospital_name = models.CharField(max_length=200)
     district = models.CharField(max_length=100)
     address = models.TextField()
-    emergency_contact = models.CharField(max_length=15)
+    emergency_contact = models.CharField(max_length=10)
     hospital_email = models.EmailField()
 
     def __str__(self):

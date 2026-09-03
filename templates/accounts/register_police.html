@@ -14,67 +14,89 @@
                         </div>
                     </div>
                     <div class="alert alert-warning small mt-3 mb-3">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Khoj is a supplementary investigation support tool only. Continue with your official police systems for FIR and case management.
+                        <i class="bi bi-info-circle me-1"></i>
+                        Khoj is a supplementary investigation support tool only. Continue with your official police systems for FIR and case management.
                     </div>
+
                     <form method="post">
                         {% csrf_token %}
+                        
                         <p class="form-section-title">Personal Details</p>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Full Name</label>
                                 {{ form.full_name }}
-                                {% if form.full_name.errors %}<div class="text-danger small">{{ form.full_name.errors.0 }}</div>{% endif %}
+                                {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Police ID</label>
                                 {{ form.police_id }}
-                                {% if form.police_id.errors %}<div class="text-danger small">{{ form.police_id.errors.0 }}</div>{% endif %}
+                                {% if form.police_id.errors %}<div class="text-danger small mt-1">{{ form.police_id.errors.0 }}</div>{% endif %}
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label class="form-label">Email</label>
                                 {{ form.email }}
-                                {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                                {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
                             </div>
-                            
                         </div>
                         
-                        <p class="form-section-title">Station Details</p>
+                        <p class="form-section-title mt-4">Station Details</p>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">Police Station Name</label>
                                 {{ form.police_station_name }}
+                                {% if form.police_station_name.errors %}<div class="text-danger small mt-1">{{ form.police_station_name.errors.0 }}</div>{% endif %}
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">District</label>
                                 {{ form.district }}
+                                {% if form.district.errors %}<div class="text-danger small mt-1">{{ form.district.errors.0 }}</div>{% endif %}
                             </div>
                             
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label class="form-label">Station Registration ID</label>
                                 {{ form.police_station_registration_id }}
-                            </div>
-                            <hr>
-                            <div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Password</label>
-                                    {{ form.password }}
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Confirm Password</label>
-                                    {{ form.confirm_password }}
-                                </div>
+                                {% if form.police_station_registration_id.errors %}<div class="text-danger small mt-1">{{ form.police_station_registration_id.errors.0 }}</div>{% endif %}
                             </div>
                         </div>
+
+                        <hr class="my-4">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                {{ form.password }}
+                                {% if form.password.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {% for error in form.password.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password</label>
+                                {{ form.confirm_password }}
+                                {% if form.confirm_password.errors %}
+                                    <div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         {% if form.non_field_errors %}
-                        <div class="alert alert-danger small py-2 mt-3">{{ form.non_field_errors.0 }}</div>
+                            <div class="alert alert-danger small py-2 mt-3">
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
                         {% endif %}
-                        <div class=" small mt-3 mb-3">
+
+                        <div class="mt-4 mb-3">
                             <button type="submit" class="btn btn-danger w-100">Register as Police Officer</button>
                         </div>
-                        
                     </form>
+
                     <p class="text-center text-muted small mt-3 mb-0">
                         <a href="{% url 'register_choice' %}">← Back to role selection</a>
                     </p>
