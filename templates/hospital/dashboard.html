@@ -1,7 +1,14 @@
+<!--
+  dashboard.html : 
+  - Home screen after login — shows unidentified patient count, active patients, recent match alerts etc.
+-->
+
 {% extends 'base.html' %}
 {% block title %}Hospital Dashboard{% endblock %}
 {% block content %}
 <div class="container py-4">
+
+  <!--------------------- HEADER ---------------------->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h4 class="mb-0 fw-semibold">Welcome, {{ user.full_name }}</h4>
@@ -9,6 +16,7 @@
     </div>
     <a href="{% url 'hospital:add_patient' %}" class="btn btn-success btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Patient</a>
   </div>
+  <!--------------------- TOP STATS (4 Boxes) --------------------->
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="card stat-card border-warning h-100"><div class="card-body py-3">
@@ -26,18 +34,19 @@
     </div>
     <div class="col-6 col-md-3">
       <div class="card stat-card border-success h-100"><div class="card-body py-3">
-        <div class="text-muted small">Resolved</div>
+        <div class="text-muted small">Resolved Cases</div>
         <div class="mt-1"><a href="{% url 'hospital:resolved_patients' %}" class="btn btn-outline-success btn-sm">View</a></div>
       </div></div>
     </div>
     <div class="col-6 col-md-3">
       <div class="card stat-card border-secondary h-100"><div class="card-body py-3">
-        <div class="text-muted small">Emergency</div>
+        <div class="text-muted small">Emergency Contact</div>
         <div class="small fw-semibold mt-1">{{ user.hospital_profile.emergency_contact }}</div>
       </div></div>
     </div>
   </div>
   <div class="row g-4">
+    <!-------------------- LEFT COLUMN ---------------------->
     <div class="col-lg-6">
       <div class="card h-100">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -63,6 +72,7 @@
         </div>
       </div>
     </div>
+    <!--------------------- RIGHT COLUMN --------------------->
     <div class="col-lg-6">
       <div class="card h-100">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -84,6 +94,7 @@
             </li>
             {% endfor %}
           </ul>
+          <!--------------------- NO ALERTS YET --------------------->
           {% else %}
           <div class="text-center text-muted py-5 small"><i class="bi bi-bell-slash fs-3 d-block mb-2"></i>No alerts yet.</div>
           {% endif %}
