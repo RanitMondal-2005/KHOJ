@@ -169,18 +169,23 @@ def reject_match(request, pk): # Removing a match from Potential Matches Section
 
 @family_required
 def close_case(request, pk):
-    """Family user marks a case as FOUND or CLOSED. It will be archived."""
     report = get_object_or_404(MissingPerson, pk=pk, linked_family_user=request.user)
 
     if request.method == 'POST':
         action = request.POST.get('action') # Get the action from the POST request(FOUND or CLOSED, which one the user selected & submitted via the form)
         if action == 'FOUND':
             report.status = 'FOUND'
-            messages.success(request, f"{report.person_name} has been marked as found. We're glad!")
+            messages.success(request, f"{report.person_name} has been marked as found.")
         elif action == 'CLOSED':
             report.status = 'CLOSED'
-            messages.info(request, f"Case for {report.person_name} has been closed. Please contact support for further assistance.")
+            messages.info(request, f"Case for {report.person_name} has been closed.")
+
         report.save()
+
+        # delete all match results for this report — case is resolved, matches no longer relevant
+        from matching.models import MatchResult
+        MatchResult.objects.filter(missing_person=report).delete()
+
         return redirect('family:archived_cases')
 
     return render(request, 'family/close_case.html', {'report': report})

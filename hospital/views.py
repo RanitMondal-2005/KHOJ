@@ -110,13 +110,17 @@ def reject_match(request, pk):
 
 @hospital_required
 def mark_identified(request, pk):
-    """Mark a patient as identified (resolved)."""
     patient = get_object_or_404(UnidentifiedPatient, pk=pk, linked_hospital=request.user)
 
     if request.method == 'POST':
         patient.status = 'IDENTIFIED'
         patient.save()
-        messages.success(request, f"Patient marked as identified. Record moved to resolved section.")
+
+        # delete all match results for this patient — identified, no longer needs matching
+        from matching.models import MatchResult
+        MatchResult.objects.filter(unidentified_patient=patient).delete()
+
+        messages.success(request, "Patient marked as identified. Record moved to resolved section.")
         return redirect('hospital:resolved_patients')
 
     return render(request, 'hospital/confirm_identify.html', {'patient': patient})
