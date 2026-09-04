@@ -128,16 +128,22 @@ def resolved_patients(request):
     View all identified patients.
     Has a simple name search filter so hospital can find a specific resolved patient.
     """
+    # retrieve only records belonging to the current hospital that have been resolved
     patients = UnidentifiedPatient.objects.filter(
         linked_hospital=request.user, status='IDENTIFIED'
     )
 
-    # simple name filter - just checks estimated_name contains the query
-    query = request.GET.get('q', '').strip()
-    if query:
+    query = request.GET.get('q', '').strip() # bringing {'q':...}, that value typed by user in the input field of the form;which defaults to '' if empty-no name typed
+    show_unnamed = request.GET.get('unnamed', '') # when unknown patients button is clicked our hardcoded url in <a> tag runs and we get the 1 value here(since .../?unnamed=1) - indicating we need to show all patients with empty str names stored in DB
+
+    if show_unnamed: # '1' is truthy value, so we got the indication then filter..if '' empty str then this if would be false & no filter for this
+        # filter only patients with no name stored
+        patients = patients.filter(estimated_name='')
+    elif query: # else: bring the name and see if that matches
         patients = patients.filter(estimated_name__icontains=query)
 
     return render(request, 'hospital/resolved_patients.html', {
         'patients': patients,
-        'query': query,
+        'query': query, # Sent back the typed name value to HTML context to Preserve user input in search box on reload
+        'show_unnamed': show_unnamed, # passed back to the template, turning the button solid yellow or toggle btw
     })

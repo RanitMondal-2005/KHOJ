@@ -1,31 +1,50 @@
+<!-- 
+    resolved_patients.html : 
+    - Table of all identified patients with name search filter.
+-->
+
 {% extends 'base.html' %}
 {% block title %}Resolved Patients{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h4 class="fw-bold mb-0">Resolved / Identified Patients</h4>
-        <!-- simple name search - just filters by estimated_name -->
-        <form method="get" class="d-flex gap-2">
-            <input type="text" name="q" value="{{ query }}"
-                   class="form-control form-control-sm" style="width:220px;"
-                   placeholder="Search by name...">
-            <button type="submit" class="btn btn-outline-secondary btn-sm px-3">
-                <i class="bi bi-search"></i>
-            </button>
-            {% if query %}
-            <a href="{% url 'hospital:resolved_patients' %}" class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-x"></i>
+        <div class="d-flex gap-2 flex-wrap">
+            <!-- name search -->
+            <form method="get" class="d-flex gap-2"> <!-- GET is used; as name can be shown in URL also, no issue-->
+                <input type="text" name="q" value="{{ query }}"
+                    class="form-control form-control-sm" style="width:220px;"
+                    placeholder="Search by name..."> <!--  When the user types a search term and clicks the search button, the input text is submitted via name="q", which the view reads using request.GET.get('q', '')...
+                        The attribute value="{{ query }}" exists because standard HTTP page reloads wipe out input fields. By passing query back from the view into the template context(return render(...{"query":query})), Django injects that searched text directly into value="...", rendering the page with the search term still inside the box. When there is no active search (or on the very first page load), query is just an empty string (""), so the input renders with an empty value.-->
+                <button type="submit" class="btn btn-outline-secondary btn-sm px-3">
+                    <i class="bi bi-search"></i>
+                </button>
+                {% if query %}
+                <a href="{% url 'hospital:resolved_patients' %}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x"></i> <!-- Cancel back button only appears when search is made-->
+                </a>
+                {% endif %}
+            </form>
+
+            <!-- separate button to filter all nameless patients -->
+            <a href="{% url 'hospital:resolved_patients' %}?unnamed=1"
+            class="btn btn-sm {% if show_unnamed %}btn-warning{% else %}btn-outline-warning{% endif %}"> <!-- Just to add that hover glow effect when button clicked we are adding if-else in url-->
+                <i class="bi bi-person-dash me-1"></i>Unnamed Patients 
+                 <!-- ### Note : (The ?unnamed=1 part is hardcoded into the url itself(which means ?key=value or ?name=value), so no form or <input> is needed).Because ?unnamed=1 is in the URL, show_unnamed value in views.py becomes '1';and from view if show_unnamed:...  # '1' is truthy;so this is triggered and we get : patients = patients.filter(estimated_name='') i.e, all patients list with empty str name-->
             </a>
+            {% if show_unnamed %}
+                <a href="{% url 'hospital:resolved_patients' %}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x"></i>  <!-- Cancel back button only appears when search is made-->
+                </a>
             {% endif %}
-        </form>
+        </div>
     </div>
 
-    {% if query %}
-    <p class="text-muted small mb-3">
-        Showing results for <strong>"{{ query }}"</strong>
-    </p>
+    {% if show_unnamed %}
+        <p class="text-muted small mb-3">Showing patients with no name recorded.(Unknown named Patients)</p>
+    {% elif query %}
+        <p class="text-muted small mb-3">Showing results for <strong>"{{ query }}"</strong></p>
     {% endif %}
 
     {% if patients %}
