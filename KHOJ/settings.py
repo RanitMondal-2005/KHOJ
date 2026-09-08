@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'family.apps.FamilyConfig',
     'hospital.apps.HospitalConfig',
-    'police.apps.PoliceConfig',
     'matching.apps.MatchingConfig',
     'notifications.apps.NotificationsConfig',
 ]
@@ -90,11 +89,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Use email for authentication instead of username
 # all three backends registered - Django tries them in order
-# Family logs in by email, Hospital by staff_id, Police by police_id
+# Family logs in by email, Hospital by staff_id
 AUTHENTICATION_BACKENDS = [
     'accounts.backends.EmailBackend',
     'accounts.backends.StaffIDBackend',
-    'accounts.backends.PoliceIDBackend',
 ]
 
 LOGIN_URL = '/accounts/login/'

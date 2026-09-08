@@ -2,7 +2,7 @@
 accounts/admin.py
 
 Django admin registrations for developer use only.
-Not part of the platform's core RBAC — only for DB inspection.
+Not part of the platform's core RBAC — only for DB inspection by Admin.
 """
 
 from django.contrib import admin
@@ -43,7 +43,7 @@ class HospitalProfileAdmin(admin.ModelAdmin):
     search_fields = ['hospital_name', 'staff_id', 'district']
     list_filter = ['district']
 
-
+# ------ POLICE is Entirely Dropped, to avoid migrations we are keeping it -------------
 @admin.register(PoliceProfile)
 class PoliceProfileAdmin(admin.ModelAdmin):
     list_display = ['police_station_name', 'police_id', 'district']

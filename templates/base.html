@@ -113,31 +113,7 @@
                                         {% endif %}
                                     </a>
                                 </li>
-
-                            <!-- ── ROLE-BASED NAVIGATION: POLICE ─────────── -->
-                            {% elif user.role == 'POLICE' %}
-                                <li class="nav-item">
-                                    <a class="nav-link nav-link-khoj" href="{% url 'police:dashboard' %}">
-                                        <i class="bi bi-grid me-1"></i>Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link nav-link-khoj" href="{% url 'police:regional_cases' %}">
-                                        <i class="bi bi-geo-alt me-1"></i>Regional Cases
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link nav-link-khoj" href="{% url 'police:nearby_matches' %}">
-                                        <i class="bi bi-diagram-3 me-1"></i>Matches
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link nav-link-khoj" href="{% url 'police:search_hospitals' %}">
-                                        <i class="bi bi-hospital me-1"></i>Hospitals
-                                    </a>
-                                </li>
                             {% endif %}
-
                             <!-- ── USER PROFILE & SESSION DROPDOWN ───────── -->
                             <li class="nav-item dropdown ms-lg-2">
                                 <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 khoj-user-pill"
@@ -167,12 +143,6 @@
                                     {% elif user.role == 'HOSPITAL' %}
                                     <li>
                                         <a class="dropdown-item small py-2" href="{% url 'hospital:dashboard' %}">
-                                            <i class="bi bi-grid me-2 text-muted"></i>Dashboard
-                                        </a>
-                                    </li>
-                                    {% elif user.role == 'POLICE' %}
-                                    <li>
-                                        <a class="dropdown-item small py-2" href="{% url 'police:dashboard' %}">
                                             <i class="bi bi-grid me-2 text-muted"></i>Dashboard
                                         </a>
                                     </li>
@@ -247,7 +217,7 @@
                             Missing Person Coordination Platform
                         </div>
                     </div>
-                    
+
                     <!--  Disclaimer Text -->
                     <div class="col-md-8 text-md-end">
                         <p class="mb-0" style="font-size:0.75rem; line-height:1.7; color:#8a9bb0;">
@@ -263,7 +233,7 @@
                     <span style="font-size:0.7rem; color:#5a7080;">
                         &copy; Khoj &nbsp;|&nbsp; Missing & Unidentified Persons Coordination Platform &nbsp;|&nbsp; Developed by @ranitmondal and @biswajitsamanta
                         <!-- &copy -> Copyright Symbol ; &nbsp -> Non-Breaking Space,to prevent automatic line breaks-->
-                    </span> 
+                    </span>
                 </div>
             </div>
         </footer>

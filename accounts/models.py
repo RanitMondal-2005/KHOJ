@@ -5,13 +5,13 @@ WHY THIS FILE EXISTS:
 By default, Django's built-in User system forces everyone to log in with a 'username' and 'password'.
 In Khoj, we don't want usernames. We need:
 1. Family users to log in using their Email.
-2. Hospital staff and Police officers to log in using their unique Institutional IDs (staff_id / police_id) or Email.
-3. Extra details for institutions (like hospital address or police station name) that standard Django users don't have.
+2. Hospital staff to log in using their unique Institutional IDs (staff_id).
+3. Extra details for institutions (like hospital address) that standard Django users don't have.
 
 HOW WE SOLVE IT:
 - KhojUserManager: Custom manager that creates users, lowercases emails, and safely hashes passwords.
 - KhojUser: REPLACES DJANGO'S DEFAULT USER MODEL ENTIRELY. Sets 'email' as the main login field (USERNAME_FIELD).
-- HospitalProfile & PoliceProfile: Separate tables linked 1-to-1 with KhojUser to store institutional details and IDs without cluttering the main user table.
+- HospitalProfile: Separate table linked 1-to-1 with KhojUser to store institutional details and IDs without cluttering the main user table.
 """
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -22,7 +22,7 @@ class KhojUserManager(BaseUserManager):
     def create_user(self, email, full_name, role, password=None, **extra_fields):
         """
         Creates and saves a regular KhojUser with normalized email, role, and hashed password.
-        Called by registration forms and user creation services. 
+        Called by registration forms and user creation services.
         NOTE: We don't instantiate KhojUser directly. We call KhojUser.objects.create_user(),
         which routes through this manager to hash passwords and validate fields before finally saving to the DB.
         """
@@ -38,7 +38,7 @@ class KhojUserManager(BaseUserManager):
     def create_superuser(self, email, full_name, password=None, **extra_fields): # called when creating a superuser for Django admin
         """
         Creates a superuser (manage.py createsuperuser) for Django Admin Panel.
-        Does 3 things - 
+        Does 3 things -
         """
         extra_fields.setdefault('is_staff', True) # Grants access to log into Django Admin (/admin/)
         extra_fields.setdefault('is_superuser', True) # Grants master permissions across all tables and models in admin panel
@@ -48,9 +48,9 @@ class KhojUserManager(BaseUserManager):
 class KhojUser(AbstractBaseUser, PermissionsMixin):
     """
     Base user model for Khoj.
-    All three role types (Family, Hospital, Police) use this model.
-    Hospital and Police have additional profile models for institutional fields.
-    
+    Both the 2 role types (Family & Hospital) use this model.
+    Hospital has additional profile model for institutional fields.
+
     Inheritance:
     - AbstractBaseUser: Handles password hashing, last_login tracking, and core auth methods.
     - PermissionsMixin: Handles groups, user_permissions, is_superuser flag, and permission caching.
@@ -75,10 +75,10 @@ class KhojUser(AbstractBaseUser, PermissionsMixin):
     # Override PermissionsMixin M2M fields to set unique related_names
     # To avoid Clash with Django's default User and our KhojUser in the same project.
     groups = models.ManyToManyField(
-        'auth.Group', 
+        'auth.Group',
         blank=True,
         related_name='khojuser_set', # custom name to avoid clash with default User model
-        related_query_name='khojuser', 
+        related_query_name='khojuser',
         verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
@@ -95,7 +95,7 @@ class KhojUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email' # making email act as the username throughout Django's auth system
     REQUIRED_FIELDS = ['full_name']
 
-    objects = KhojUserManager() # connecting KhojUserManager to KhojUser i.e, internally it is KhojUserManager.model = KhojUser 
+    objects = KhojUserManager() # connecting KhojUserManager to KhojUser i.e, internally it is KhojUserManager.model = KhojUser
 
     def __str__(self):
         # Human-readable string representation used in Django Admin lists and shell debugging
@@ -112,10 +112,6 @@ class KhojUser(AbstractBaseUser, PermissionsMixin):
     def is_hospital(self):
         return self.role == 'HOSPITAL'
 
-    @property
-    def is_police(self):
-        return self.role == 'POLICE'
-    
     # @property makes these callable like attributes, not methods — so we can use user.is_family instead of writting user.is_family()
 
 
@@ -126,7 +122,7 @@ class HospitalProfile(models.Model):
     """
     Extended profile for Hospital Staff users.
     Stores institutional details for the hospital.
-    staff_id acts as their institutional identifier - login via staffID is handled in backends.py 
+    staff_id acts as their institutional identifier - login via staffID is handled in backends.py
     Linked 1-to-1 with KhojUser: accessed via `user.hospital_profile`.
     """
 
@@ -143,6 +139,7 @@ class HospitalProfile(models.Model):
         return f"{self.hospital_name} - {self.staff_id}"
 
 
+# -------- POLICE Role is now removed, to avoid new migrations we are not removing this from models.py -----------------
 class PoliceProfile(models.Model):
     """
     Extended profile for Police users.

@@ -5,8 +5,8 @@ Registration forms for all 3 roles + separate login forms per role.
 - Family Registration: Uses ModelForm since it only writes to KhojUser.
 - Hospital & Police Registration: Uses forms.Form because each saves into TWO tables:
   1. KhojUser (Base credentials: email, password, role)
-  2. HospitalProfile / PoliceProfile (Institutional fields: IDs, station/hospital details, district)
-- Login Forms: Separate forms tailored to each role's primary login credential (Email, Staff ID, Police ID).
+  2. HospitalProfile (Institutional fields: IDs,hospital details, district)
+- Login Forms: Separate forms tailored to each role's primary login credential (Email, Staff ID).
 """
 
 import re  # For regex validation (names, IDs, district formats)
@@ -219,125 +219,6 @@ class HospitalRegistrationForm(forms.Form):
         return user
 
 
-# ── POLICE REGISTRATION ────────────────────
-
-class PoliceRegistrationForm(forms.Form):
-    # Plain forms.Form used to handle simultaneous creation of KhojUser + PoliceProfile as ModeForm Can only target 1 model at a time.
-
-    full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Officer Full Name'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Official / Login Email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
-    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'}))
-    police_id = forms.CharField(
-        max_length=50,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. POL-5542'}),
-        help_text="Your unique police officer ID"
-    )
-    police_station_registration_id = forms.CharField(
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. PS-REG-981'}),
-        help_text="Police station registration number (for records)"
-    )
-    police_station_name = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Police Station Name'}))
-    district = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'District'}))
-
-    def clean_full_name(self):
-        name = self.cleaned_data.get('full_name', '').strip()
-        if not name:
-            raise forms.ValidationError("Officer full name is required.")
-        if len(name) < 2:
-            raise forms.ValidationError("Officer full name must be at least 2 characters long.")
-        if not re.match(r"^[A-Za-z\s.'-]+$", name):
-            raise forms.ValidationError("Name should only contain letters, spaces, hyphens, apostrophes, or periods.")
-        return name
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email', '').strip().lower()
-        if not email:
-            raise forms.ValidationError("Email is required.")
-        if KhojUser.objects.filter(email=email).exists():
-            raise forms.ValidationError("An account with this email already exists.")
-        return email
-
-    def clean_police_id(self):
-        police_id = self.cleaned_data.get('police_id', '').strip()
-        if not police_id:
-            raise forms.ValidationError("Police ID is required.")
-        if len(police_id)<3:
-            raise forms.ValidationError('Police ID is too short.')
-        if not re.match(r"^[A-Za-z0-9\-_/]+$", police_id):
-            raise forms.ValidationError("Police ID can only contain letters, numbers, hyphens, underscores, or slashes.")
-        if PoliceProfile.objects.filter(police_id=police_id).exists():
-            raise forms.ValidationError("This Police ID is already registered.")
-        return police_id
-
-    def clean_police_station_name(self):
-        station = self.cleaned_data.get('police_station_name', '').strip()
-        if not station:
-            raise forms.ValidationError("Police station name is required.")
-        if len(station) < 3:
-            raise forms.ValidationError("Police station name must be at least 3 characters.")
-        # Permits numbers, spaces, and punctuation for divisions (e.g. "Sector-V PS", "Division 2")
-        if not re.match(r"^[A-Za-z0-9\s.,'()/-]+$", station):
-            raise forms.ValidationError("Station name contains invalid special characters.")
-        return station
-
-    def clean_police_station_registration_id(self):
-        reg_id = self.cleaned_data.get('police_station_registration_id', '').strip()
-        if not reg_id:
-            raise forms.ValidationError("Police station registration ID is required.")
-        if len(reg_id)<3:
-            raise forms.ValidationError("Station Registration ID is too Short.")
-        if not re.match(r"^[A-Za-z0-9\-_/]+$", reg_id):
-            raise forms.ValidationError("Registration ID can only contain letters, numbers, hyphens, underscores, or slashes.")
-        return reg_id
-
-    def clean_district(self):
-        district = self.cleaned_data.get('district', '').strip()
-        if not district:
-            raise forms.ValidationError("District is required.")
-        if len(district) < 2:
-            raise forms.ValidationError("District name must be at least 2 characters.")
-        # Allows digits to support districts like "North 24 Parganas"
-        if not re.match(r"^[A-Za-z0-9\s.'-]+$", district):
-            raise forms.ValidationError("District contains invalid characters.")
-        # Standardize title case so case searches cross-match reliably (e.g. "north 24 parganas" -> "North 24 Parganas")
-        return district.title()
-
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        if password:
-            validate_password(password)
-        return password
-
-    def clean(self):
-        cleaned_data = super().clean()
-        p1 = cleaned_data.get('password')
-        p2 = cleaned_data.get('confirm_password')
-        if p1 and p2 and p1 != p2:
-            raise forms.ValidationError("Passwords do not match.")
-        return cleaned_data
-
-    def save(self):
-        d = self.cleaned_data
-        # 1. Create base auth user record in KhojUser table
-        user = KhojUser.objects.create_user(
-            email=d['email'],
-            full_name=d['full_name'],
-            role='POLICE',
-            password=d['password'],
-        )
-        # 2. Create linked profile record in PoliceProfile table
-        PoliceProfile.objects.create(
-            user=user,
-            police_id=d['police_id'],
-            police_station_registration_id=d['police_station_registration_id'],
-            police_station_name=d['police_station_name'],
-            district=d['district'],
-        )
-        return user
-
-
 # ── LOGIN FORMS (one per role) ─────────────────────────────────────────────────
 
 # ----- Family login form -----
@@ -391,31 +272,3 @@ class HospitalLoginForm(forms.Form):
 
     def clean_staff_id(self):
         return self.cleaned_data.get('staff_id', '').strip()
-
-
-# ----- Police login form -----
-
-class PoliceLoginForm(forms.Form):
-    """
-    Police officer login (Police ID + Password).
-    Explicit form capturing police_id instead of email.
-    The view passes police_id into authenticate(username=police_id) in views.py, which routes to PoliceIDBackend.
-    """
-    police_id = forms.CharField(
-        label="Police Officer ID",
-        widget=forms.TextInput(attrs={
-            'class': 'form-control form-control-lg',
-            'placeholder': 'e.g. WB001234',
-            'autofocus': True
-        })
-    )
-    password = forms.CharField(
-        label="Password",
-        widget=forms.PasswordInput(attrs={
-            'class': 'form-control form-control-lg',
-            'placeholder': 'Password'
-        })
-    )
-
-    def clean_police_id(self):
-        return self.cleaned_data.get('police_id', '').strip()
