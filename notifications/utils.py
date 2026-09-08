@@ -13,68 +13,65 @@ Its Implementation is straightforward: simply call the appropriate utility funct
 
 """
 
-from .models import Notification # Importing the Notification model for creating notifications
+from .models import Notification
 
-
-def create_match_notifications(missing_person=None, unidentified_patient=None): # Create notifications for new matches
+def create_match_notifications(missing_person=None, unidentified_patient=None):
     """
     Creates a notification for the relevant party when new matches are found.
-
-    - missing_person: notify the linked family user
-    - unidentified_patient: notify the linked hospital staff user
-
-    Checks for a recent duplicate notification to avoid spamming
-    (won't create a second notification if one was sent in the last hour
-    for the same case).
+    Uses a 1-hour dedup window to avoid sending the same notification twice.
     """
-    from matching.models import MatchResult 
+    from matching.models import MatchResult
     from django.utils import timezone
     from datetime import timedelta
 
-    ONE_HOUR_AGO = timezone.now() - timedelta(hours=1) # This is used to filter out recent notifications,and avoid spamming users with duplicate alerts.
-    # How its done?-> By checking if a notification of the same type and related match ID exists for the user within the last hour.
+    ONE_HOUR_AGO = timezone.now() - timedelta(hours=1)
 
+    # ───────────── notify family when their missing person report gets a match ─────────────
     if missing_person:
-        # Find pending matches for this case
         matches = MatchResult.objects.filter(
             missing_person=missing_person,
             status='PENDING'
         )
-        if not matches.exists(): # If no pending matches exist, return early
+
+        # nothing to notify about
+        if not matches.exists():
             return
 
-        family_user = missing_person.linked_family_user # Get the linked family user 
+        family_user = missing_person.linked_family_user
+        count = matches.count()  # count 
 
-        # Avoid duplicate notifications within the last hour
-        recent_exists = Notification.objects.filter( # its done by checking if a notification of the same type and related match ID exists for the user within the last hour.
-            user=family_user, # Get the linked family user
-            notif_type='MATCH_FOUND', # Notification type i.e. MATCH_FOUND
-            created_at__gte=ONE_HOUR_AGO, # Created at timestamp filter
-            related_match_id=matches.first().id, # ID of the related match(most imp) 
-        ).exists() 
+        # avoid duplicate notifications within the last hour
+        recent_exists = Notification.objects.filter(
+            user=family_user,
+            notif_type='MATCH_FOUND',
+            created_at__gte=ONE_HOUR_AGO,
+            related_match_id=matches.first().id,
+        ).exists()
 
-        if not recent_exists: # If no recent notification exists, create a new one
+        if not recent_exists:
             Notification.objects.create(
                 user=family_user,
-                message=( # Message content for the notification
+                message=(
                     f"Potential match found for {missing_person.person_name}. "
                     f"{count} possible match(es) available. Check your matches."
                 ),
                 notif_type='MATCH_FOUND',
-                related_match_id=matches.first().id, # ID of the related match
+                related_match_id=matches.first().id,
             )
 
-    # Similar logic for unidentified patients, notifying the linked hospital user
+
+    # ───────────── notify hospital when their patient record gets a match ────────────────────────
     if unidentified_patient:
         matches = MatchResult.objects.filter(
             unidentified_patient=unidentified_patient,
             status='PENDING'
         )
+
         if not matches.exists():
             return
 
         hospital_user = unidentified_patient.linked_hospital
-        count = matches.count()
+        count = matches.count()  # count 
         name = unidentified_patient.estimated_name or f"Patient #{unidentified_patient.id}"
 
         recent_exists = Notification.objects.filter(
