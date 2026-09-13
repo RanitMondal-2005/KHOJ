@@ -7,7 +7,7 @@ MissingPersonForm - For Family Members
 import re # Python's built-in module for working with regex
 from django import forms
 from .models import MissingPerson, CaseUpdate
-from datetime import date as dt_date # Python’s built-in date class 
+from datetime import date as dt_date # Python’s built-in date class
 
 class MissingPersonForm(forms.ModelForm):
 
@@ -110,7 +110,14 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Name should only contain letters, spaces, hyphens, apostrophes, or periods.")
         return name
 
-    # VALIDATION 2 : age: must be between 1 and 100, no decimals and no negatives
+    # VALIDATION 2: gender: must select a valid option (Male, Female, Other)
+    def clean_gender(self):
+        gender = self.cleaned_data.get('gender', '').strip().upper()
+        if not gender or gender in ('', 'UNKNOWN', '---------'): # if gender is empty, unknown or ---- : reject it
+            raise forms.ValidationError("Please select a valid gender (Male, Female, or Other).")
+        return gender
+
+    # VALIDATION 3 : age: must be between 1 and 100, no decimals and no negatives
     def clean_age(self):
         age = self.cleaned_data.get('age')
         if age is None:
@@ -119,7 +126,7 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Age must be between 1 and 100.")
         return age
 
-    # VALIDATION 3 : height: between 30 cm (infant) and 250 cm (adult)
+    # VALIDATION 4 : height: between 30 cm (infant) and 250 cm (adult)
     def clean_height(self):
         height = self.cleaned_data.get('height')
         if height is None:
@@ -128,7 +135,7 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Height must be between 30 cm and 250 cm.")
         return height
 
-    # VALIDATION 4 : weight: between 1 kg (infant) and 300 kg (adult)
+    # VALIDATION 5 : weight: between 1 kg (infant) and 300 kg (adult)
     def clean_weight(self):
         weight = self.cleaned_data.get('weight')
         if weight is None:
@@ -137,7 +144,7 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Weight must be between 1 kg and 300 kg.")
         return weight
 
-    # VALIDATION 5 : Aadhaar: optional but if entered must be exactly 12 digits
+    # VALIDATION 6 : Aadhaar: optional but if entered must be exactly 12 digits
     def clean_aadhaar_number(self):
         aadhaar = self.cleaned_data.get('aadhaar_number', '').strip()
         if aadhaar:
@@ -147,7 +154,7 @@ class MissingPersonForm(forms.ModelForm):
                 raise forms.ValidationError("Aadhaar number must be exactly 12 digits.")
         return aadhaar
 
-    # VALIDATION 6 : filer_contact: exactly 10 digits, no text, no negatives, no spaces
+    # VALIDATION 7 : filer_contact: exactly 10 digits, no text, no negatives, no spaces
     def clean_filer_contact(self):
         contact = self.cleaned_data.get('filer_contact', '').strip()
         if not contact:
@@ -158,7 +165,7 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Contact number must be exactly 10 digits.")
         return contact
 
-    # VALIDATION 7 : last_seen_location
+    # VALIDATION 8 : last_seen_location
     def clean_last_seen_location(self):
         location = self.cleaned_data.get('last_seen_location', '').strip()
         if not location:
@@ -169,7 +176,7 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("Location contains invalid characters.")
         return location
 
-    # VALIDATION 8 : district
+    # VALIDATION 9 : district
     def clean_district(self):
         district = self.cleaned_data.get('district', '').strip()
         if not district:
@@ -178,16 +185,27 @@ class MissingPersonForm(forms.ModelForm):
             raise forms.ValidationError("District name must be at least 2 characters long.")
         if not re.match(r"^[A-Za-z0-9\s.'-]+$", district):
             raise forms.ValidationError("District can only contain letters, numbers, spaces, periods, apostrophes, or hyphens.")
-        return district
+        return district.title() # so that for eg: "north 24 parganas" becomes "North 24 Parganas"
 
-    # VALIDATION 9 : last_seen_date
+    # VALIDATION 10 : last_seen_date
     def clean_last_seen_date(self):
         date = self.cleaned_data.get('last_seen_date')
         if not date:
             raise forms.ValidationError("Last seen date is required.")
-        if date > dt_date.today(): 
+        if date > dt_date.today():
             raise forms.ValidationError("Last seen date cannot be in the future.")
         return date
+
+    # VALIDATION 11 : As eye & hair color is text based fields with exact match in matching, so make this to same Case
+    # Although we are doing this before match but still its good to have clean to store properly in DB.
+    def clean_eye_color(self):
+        val = self.cleaned_data.get('eye_color', '')
+        return val.strip().capitalize() if val else ''
+
+    # VALIDATION 12 :
+    def clean_hair_color(self):
+        val = self.cleaned_data.get('hair_color', '')
+        return val.strip().capitalize() if val else ''
 
 class CaseUpdateForm(forms.ModelForm):
 

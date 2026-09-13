@@ -94,6 +94,12 @@ class UnidentifiedPatientForm(forms.ModelForm):
             raise forms.ValidationError("Name should only contain letters, spaces, hyphens, apostrophes, or periods.")
         return name
 
+    def clean_gender(self):
+        gender = self.cleaned_data.get('gender', '').strip().upper()
+        if not gender or gender == 'UNKNOWN':
+            raise forms.ValidationError("Please specify a valid gender (Male, Female, or Other). 'Unknown' is not permitted.")
+        return gender
+
     def clean_age(self):
         age = self.cleaned_data.get('age')
         if age is None:
@@ -136,7 +142,7 @@ class UnidentifiedPatientForm(forms.ModelForm):
             raise forms.ValidationError("District name must be at least 2 characters long.")
         if not re.match(r"^[A-Za-z0-9\s.'-]+$", district):
             raise forms.ValidationError("District can only contain letters, numbers, spaces, periods, apostrophes, or hyphens.")
-        return district
+        return district.title() # .title() -> makes like "north 24 parganas" becomes "North 24 Parganas"
 
     def clean_admission_date(self):
         date = self.cleaned_data.get('admission_date')
@@ -145,6 +151,14 @@ class UnidentifiedPatientForm(forms.ModelForm):
         if date > dt_date.today():
             raise forms.ValidationError("Admission date cannot be in the future.")
         return date
+
+    def clean_eye_color(self):
+        val = self.cleaned_data.get('eye_color', '')
+        return val.strip().capitalize() if val else ''
+
+    def clean_hair_color(self):
+        val = self.cleaned_data.get('hair_color', '')
+        return val.strip().capitalize() if val else ''
 
     # ------- Cross-Field Validation (ID Check) -------
 
@@ -156,7 +170,7 @@ class UnidentifiedPatientForm(forms.ModelForm):
         # If ID type chosen, 4 digits are mandatory
         if id_type and not last4:
             self.add_error('found_id_last4', "Please enter the last 4 digits of the ID.")
-        
+
         # If 4 digits typed, ID type is mandatory
         if last4 and not id_type:
             self.add_error('found_id_type', "Please select the ID type for these 4 digits.")
