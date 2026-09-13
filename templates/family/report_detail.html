@@ -1,6 +1,6 @@
-<!-- 
+<!--
   report_detail.html :
-	- Individual Report Specific all details.(Photos,Case Updates,Potential Matches all for that particular report...)
+  - Individual Report Specific all details.(Photos,Case Updates,Potential Matches all for that particular report...)
 -->
 
 {% extends 'base.html' %}
@@ -139,8 +139,10 @@
                   <span class="badge bg-{{ match.confidence_label.1 }} d-block mb-1">
                     {{ match.confidence_score }}%
                   </span>
-                  <span class="text-muted" style="font-size:0.7rem;">{{ match.confidence_label.0 }}</span>
-                  <div class="mt-1">
+                  <span class="text-muted d-block text-center" style="font-size:0.7rem;">{{ match.confidence_label.0 }}</span>
+                  <div class="mt-1 d-flex gap-1 justify-content-end">
+                    <a href="{% url 'family:my_matches' %}"
+                       class="btn btn-outline-primary btn-sm">View Match</a>
                     <a href="{% url 'family:reject_match' match.pk %}"
                        class="btn btn-outline-secondary btn-sm"
                        onclick="return confirm('Dismiss this match?')">Dismiss</a>
