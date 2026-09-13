@@ -37,28 +37,28 @@
                 <div class="fw-semibold mt-3 mb-1">The Problem</div>
                 <p class="text-muted small mb-0">
                     Thousands of missing person cases in India remain unresolved due to
-                    poor coordination between families, hospitals, and law enforcement.
+                    poor coordination between families, hospitals, and intake facilities.
                 </p>
             </div>
         </div>
         <div class="col-md-7">
             <h4 class="fw-bold mb-3" style="letter-spacing:-0.02em;">Why Khoj was built</h4>
             <p class="text-muted mb-3">
-                When a person goes missing, the family files a report at the police station.
-                Meanwhile, an unidentified patient matching that description may already be
-                admitted to a hospital nearby — but there is no system connecting these two pieces of information.
+                When a person goes missing, families often search blindly across jurisdictions.
+                Meanwhile, an unidentified or trauma patient matching that description may already be
+                admitted to a hospital nearby — but there is no unified system connecting these two critical pieces of information.
             </p>
             <p class="text-muted mb-0">
-                Khoj bridges this gap by maintaining a searchable, matched database of missing
-                person reports and unidentified patient records — with automatic scoring to surface
-                likely matches.
+                Khoj bridges this gap by maintaining an active, matched database of missing
+                person reports and unidentified patient records — with transparent scoring to surface
+                likely matches directly to both parties.
             </p>
         </div>
     </div>
 
     <hr style="border-color:#e3e8ef; margin-bottom:3rem;">
 
-    <!-- WHAT KHOJ DOES — 4 feature cards -->
+    <!-- WHAT KHOJ DOES — feature cards -->
     <h4 class="fw-bold mb-4" style="letter-spacing:-0.02em;">What Khoj Does</h4>
     <div class="row g-3 mb-5">
 
@@ -70,7 +70,7 @@
                 <div>
                     <div class="fw-semibold small mb-1">Missing Person Reports</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        Families file detailed reports with physical description, Aadhaar number,
+                        Families file detailed reports with physical description, government ID (optional),
                         clothing, photos, relation to the missing person, and last known location.
                         Max 3 active cases per family user.
                     </div>
@@ -86,7 +86,7 @@
                 <div>
                     <div class="fw-semibold small mb-1">Unidentified Patient Records</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        Hospital staff upload patient records with 3 required photos (face, full body,
+                        Hospital staff upload patient records with 3 intake photos (face, full body,
                         side profile), clothing description, and any ID found on the person
                         — last 4 digits only, for privacy.
                     </div>
@@ -100,104 +100,121 @@
                     <i class="bi bi-diagram-3 text-warning"></i>
                 </div>
                 <div>
-                    <div class="fw-semibold small mb-1">Automatic Matching</div>
+                    <div class="fw-semibold small mb-1">Automated Matching Engine</div>
                     <div class="text-muted" style="font-size:0.82rem;">
-                        Django signals trigger the matching engine on every save.
-                        Reports are scored against all patient records across 12 weighted factors.
-                        Matches above 40% confidence are stored with a full per-field breakdown.
+                        Matching Engine is triggered on every save.
+                        Pairs first pass strict demographic and timeline filters, followed by scoring across 11 weighted factors.
+                        Matches above 40% confidence are stored with full breakdowns.
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="col-md-6">
+            <div class="d-flex gap-3 p-3" style="background:#f8fafc; border-radius:10px; border:1px solid #e3e8ef;">
+                <div style="width:36px;height:36px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="bi bi-bell text-danger"></i>
+                </div>
+                <div>
+                    <div class="fw-semibold small mb-1">Direct Match Alerts</div>
+                    <div class="text-muted" style="font-size:0.82rem;">
+                        Both hospital staff and family members receive instant in-app alerts when a high-confidence match is discovered, allowing direct phone or email verification.
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
     <!-- MATCHING ENGINE SECTION -->
     <h4 class="fw-bold mb-3" style="letter-spacing:-0.02em;">How the Matching Engine Works</h4>
-    <p class="text-muted mb-4">
-        Khoj uses a <strong>weighted rule-based scoring system</strong> — no AI, no machine learning.
-        Every factor is transparent and explainable. A missing person report is compared against
-        each unidentified patient record across 12 criteria. The per-field score is stored with
+    <p class="text-muted mb-3">
+        Khoj uses a <strong>hybrid scoring system</strong> combining computer vision face biometrics with weighted demographic attributes.
+        Every factor is transparent and explainable. The per-field score is stored with
         every match so you can see exactly why it was flagged.
     </p>
+
+    <!-- Hard Filter Notice -->
+    <div class="alert alert-light border d-flex align-items-center mb-4 py-2 px-3"
+         style="background:#f8fafc; border-color:#e2e8f0 !important; border-radius:8px;">
+        <i class="bi bi-shield-check text-success fs-5 me-2"></i>
+        <div class="small text-muted" style="font-size:0.82rem;">
+            <strong class="text-dark">Pre-Match Verification:</strong>
+            Strict <strong>Gender</strong> match (Male↔Male, Female↔Female, Other↔Other) and <strong>Timeline Validity</strong> (patient admitted on or after last seen date) act as mandatory hard filters before biometric and demographic scoring runs.
+        </div>
+    </div>
 
     <!-- Scoring Table -->
     <div class="table-responsive mb-5">
         <table class="table table-bordered align-middle" style="font-size:0.87rem;">
             <thead style="background:#f8fafc;">
                 <tr>
-                    <th style="width:50%;">Matching Factor</th>
-                    <th class="text-center">Points</th>
-                    <th>Logic</th>
+                    <th style="width:45%;">Matching Factor</th>
+                    <th class="text-center" style="width:20%;">Points</th>
+                    <th>Logic / Method</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><i class="bi bi-gender-ambiguous me-2 text-muted"></i>Gender</td>
-                    <td class="text-center fw-semibold text-primary">20</td>
-                    <td class="text-muted small">Exact match required</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-droplet me-2 text-muted"></i>Blood Group</td>
-                    <td class="text-center fw-semibold text-primary">15</td>
-                    <td class="text-muted small">Exact match required</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-calendar me-2 text-muted"></i>Age</td>
-                    <td class="text-center fw-semibold text-primary">up to 15</td>
-                    <td class="text-muted small">±3 yrs = 15, ±6 = 10, ±10 = 5</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-arrows-vertical me-2 text-muted"></i>Height</td>
-                    <td class="text-center fw-semibold text-primary">up to 10</td>
-                    <td class="text-muted small">±5 cm = 10, ±10 = 6, ±15 = 3</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-geo-alt me-2 text-muted"></i>District</td>
-                    <td class="text-center fw-semibold text-primary">10</td>
-                    <td class="text-muted small">Same district = full points</td>
+                    <td><i class="bi bi-camera-fill me-2 text-muted"></i>Face Similarity</td>
+                    <td class="text-center fw-semibold text-primary">up to 30</td>
+                    <td class="text-muted small">dlib 68-landmark ResNet 128-d vector embedding distance</td>
                 </tr>
                 <tr>
                     <td><i class="bi bi-body-text me-2 text-muted"></i>Identifying Marks</td>
-                    <td class="text-center fw-semibold text-primary">up to 10</td>
-                    <td class="text-muted small">Jaccard keyword overlap on marks text</td>
+                    <td class="text-center fw-semibold text-primary">up to 15</td>
+                    <td class="text-muted small">Jaccard keyword overlap on scars, tattoos, and marks</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-calendar me-2 text-muted"></i>Age Similarity</td>
+                    <td class="text-center fw-semibold text-primary">up to 15</td>
+                    <td class="text-muted small">±3 yrs = 15 pts, ±6 yrs = 10 pts, ±10 yrs = 5 pts</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-arrows-vertical me-2 text-muted"></i>Height Similarity</td>
+                    <td class="text-center fw-semibold text-primary">up to 12</td>
+                    <td class="text-muted small">±5 cm = 12 pts, ±10 cm = 8 pts, ±15 cm = 4 pts</td>
                 </tr>
                 <tr>
                     <td><i class="bi bi-person-standing me-2 text-muted"></i>Clothing Description</td>
                     <td class="text-center fw-semibold text-primary">up to 10</td>
-                    <td class="text-muted small">Jaccard keyword overlap on clothing text</td>
+                    <td class="text-muted small">Jaccard keyword overlap on attire and clothing</td>
                 </tr>
                 <tr>
-                    <td><i class="bi bi-camera me-2 text-muted"></i>Photo Similarity</td>
-                    <td class="text-center fw-semibold text-primary">up to 10</td>
-                    <td class="text-muted small">Perceptual hash distance (imagehash)</td>
+                    <td><i class="bi bi-droplet me-2 text-muted"></i>Blood Group</td>
+                    <td class="text-center fw-semibold text-primary">5</td>
+                    <td class="text-muted small">Exact match (0 pts if either is UNKNOWN)</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-geo-alt me-2 text-muted"></i>District Alignment</td>
+                    <td class="text-center fw-semibold text-primary">5</td>
+                    <td class="text-muted small">Same administrative district = 5 pts</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-circle me-2 text-muted"></i>Weight Similarity</td>
+                    <td class="text-center fw-semibold text-primary">up to 4</td>
+                    <td class="text-muted small">±5 kg = 4 pts, ±10 kg = 2 pts</td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-palette me-2 text-muted"></i>Skin Tone</td>
+                    <td class="text-center fw-semibold text-primary">2</td>
+                    <td class="text-muted small">Exact category match (0 pts if UNKNOWN)</td>
                 </tr>
                 <tr>
                     <td><i class="bi bi-eye me-2 text-muted"></i>Eye Color</td>
-                    <td class="text-center fw-semibold text-primary">5</td>
+                    <td class="text-center fw-semibold text-primary">1</td>
                     <td class="text-muted small">Exact text match</td>
                 </tr>
                 <tr>
                     <td><i class="bi bi-person me-2 text-muted"></i>Hair Color</td>
-                    <td class="text-center fw-semibold text-primary">5</td>
+                    <td class="text-center fw-semibold text-primary">1</td>
                     <td class="text-muted small">Exact text match</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-palette me-2 text-muted"></i>Skin Tone</td>
-                    <td class="text-center fw-semibold text-primary">5</td>
-                    <td class="text-muted small">Exact match</td>
-                </tr>
-                <tr>
-                    <td><i class="bi bi-circle me-2 text-muted"></i>Weight</td>
-                    <td class="text-center fw-semibold text-primary">up to 5</td>
-                    <td class="text-muted small">±5 kg = 5, ±10 = 3</td>
                 </tr>
                 <!-- total row -->
                 <tr style="background:#f8fafc;">
                     <td class="fw-semibold">Total Maximum Score</td>
                     <td class="text-center fw-bold text-success">100</td>
-                    <td class="text-muted small">Threshold: 40+ to be stored &nbsp;·&nbsp; Score capped at 100</td>
+                    <td class="text-muted small">Threshold: 40+ required to store match &nbsp;·&nbsp; Capped at 100</td>
                 </tr>
             </tbody>
         </table>
@@ -209,27 +226,23 @@
         <div class="d-flex flex-column gap-2">
             <div class="d-flex align-items-start gap-2 small text-muted">
                 <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                <span>It is <strong class="text-dark">not</strong> an official police or government system — integration with official systems is planned for future versions.</span>
+                <span>It is <strong class="text-dark">not</strong> an official police or government platform — it is a direct family-to-hospital coordination bridge.</span>
             </div>
             <div class="d-flex align-items-start gap-2 small text-muted">
                 <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                <span>It does <strong class="text-dark">not</strong> replace FIR filing or official missing person processes.</span>
+                <span>It does <strong class="text-dark">not</strong> replace official First Information Report (FIR) filing or legal missing person procedures.</span>
             </div>
             <div class="d-flex align-items-start gap-2 small text-muted">
                 <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                <span>It does <strong class="text-dark">not</strong> verify institutional IDs (hospital registration IDs) through external government APIs — stored for future verification integration.</span>
+                <span>It does <strong class="text-dark">not</strong> verify institutional or hospital IDs through external government databases.</span>
             </div>
             <div class="d-flex align-items-start gap-2 small text-muted">
                 <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                <span>It does <strong class="text-dark">not</strong> use AI or machine learning — all matching logic is rule-based, weighted, and fully explainable.</span>
+                <span>There is <strong class="text-dark">no police role</strong> on this platform — all workflows operate strictly between families and medical facilities.</span>
             </div>
             <div class="d-flex align-items-start gap-2 small text-muted">
                 <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                <span><strong class="text-dark">No</strong> involvement of <strong class="text-dark">Police officers</strong> on this platform.</span>
-            </div>
-            <div class="d-flex align-items-start gap-2 small text-muted">
-                <i class="bi bi-x-circle-fill text-danger mt-1 flex-shrink-0"></i>
-                <span>Photo comparison is <strong class="text-dark">not</strong> facial recognition — it uses perceptual hashing to detect visual similarity between uploaded images.</span>
+                <span>It does <strong class="text-dark">not</strong> guarantee positive legal identification — matches are probabilistic leads that require human verification.</span>
             </div>
         </div>
     </div>
@@ -242,9 +255,9 @@
                 <div class="fw-semibold mb-1">Important Disclaimer</div>
                 <p class="text-muted small mb-0">
                     Always file a proper FIR with your local police station when reporting a missing person.
-                    Khoj is a supplementary coordination tool and does not constitute an official report.
-                    The platform makes no guarantees about match accuracy and all matches must be
-                    verified through direct contact between parties.
+                    Khoj is a supplementary coordination tool and does not constitute an official legal report.
+                    The platform makes no guarantees about match accuracy, and all matches must be
+                    verified through direct contact between the reporting family and hospital administration.
                 </p>
             </div>
         </div>
