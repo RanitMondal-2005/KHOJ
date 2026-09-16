@@ -1,9 +1,9 @@
 """
 accounts/forms.py
 
-Registration forms for all 3 roles + separate login forms per role.
+Registration forms for both the 2 roles + separate login forms per role.
 - Family Registration: Uses ModelForm since it only writes to KhojUser.
-- Hospital & Police Registration: Uses forms.Form because each saves into TWO tables:
+- Hospital : Uses forms.Form because it saves details into TWO tables:
   1. KhojUser (Base credentials: email, password, role)
   2. HospitalProfile (Institutional fields: IDs,hospital details, district)
 - Login Forms: Separate forms tailored to each role's primary login credential (Email, Staff ID).
@@ -72,6 +72,13 @@ class FamilyRegistrationForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
+        """
+        ModelForm save logic:
+        Unlike HospitalRegistrationForm, this form directly targets KhojUser via Meta.model.
+        Instead of calling the KhojUserManager's create_user(), we use super().save(commit=False) to build
+        the KhojUser instance in memory, allowing us to safely set the role and encrypt the
+        password using set_password() before committing to the database.
+        """
         # commit=False allows password hashing and role assignment before saving to database
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
@@ -197,8 +204,13 @@ class HospitalRegistrationForm(forms.Form):
         return cleaned_data
 
     def save(self):
+        """
+        Plain forms.Form save logic:
+        Since forms.Form is not bound to a single database model, super().save() does not exist (Like we used in FamilyRegistration Form).
+        We have to explicitly use KhojUser.objects.create_user(...) to create the user, hash the password and clean up the email before saving the hospital details.
+        """
         d = self.cleaned_data
-        # 1. Create base auth user record in KhojUser table
+        # 1. Create user record in KhojUser table
         user = KhojUser.objects.create_user(
             email=d['email'],
             full_name=d['full_name'],

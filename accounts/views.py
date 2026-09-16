@@ -122,10 +122,9 @@ def register_family(request):
 
     if request.method == 'POST':
         form = FamilyRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # must specify backend explicitly - multiple backends are configured
-            login(request, user, backend='accounts.backends.EmailBackend')
+        if form.is_valid(): # All Server Side Validations are Checked i.e, all def clean(...) methods triggered & Validated
+            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py
+            login(request, user, backend='accounts.backends.EmailBackend') # must specify backend explicitly - as multiple backends are configured for our proj.
             messages.success(request, f"Welcome to Khoj, {user.full_name}!")
             return redirect('family:dashboard')
     else:
@@ -140,8 +139,8 @@ def register_hospital(request):
 
     if request.method == 'POST':
         form = HospitalRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
+        if form.is_valid(): # Form Validations Checked
+            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py
             login(request, user, backend='accounts.backends.EmailBackend')
             messages.success(request, f"Welcome to Khoj, {user.full_name}!")
             return redirect('hospital:dashboard')
