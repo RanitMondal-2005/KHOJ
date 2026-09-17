@@ -135,6 +135,8 @@ KHOJ/
 ├── templates/              # Bootstrap 5 responsive UI templates
 ├── static/                 # CSS stylesheets and UI assets
 └── requirements.txt        # Python dependencies
+
+```
 ---
 
 ## How the Matching Engine Works
