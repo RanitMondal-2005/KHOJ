@@ -118,6 +118,7 @@ Khoj provides distinct authentication entry points tailored to each operational 
 
 ## Project Structure
 
+```text
 KHOJ/
 ├── KHOJ/                   # Project settings, URL routing, WSGI
 ├── accounts/               # Custom user model & role authentication backends
@@ -134,7 +135,6 @@ KHOJ/
 ├── templates/              # Bootstrap 5 responsive UI templates
 ├── static/                 # CSS stylesheets and UI assets
 └── requirements.txt        # Python dependencies
-
 ---
 
 ## How the Matching Engine Works
