@@ -4,49 +4,46 @@ Django signals that trigger the matching engine automatically when:
   2. A new UnidentifiedPatient record is saved (status=UNIDENTIFIED)
 
 Notifications are sent only when new matches are created (not on re-runs).
-Uses `created` flag to avoid duplicate notifications on every save.
 """
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-# This signal is triggered after a MissingPerson record is saved when status is ACTIVE and its uploaded by the family
-@receiver(post_save, sender='family.MissingPerson')
-def match_on_missing_person_save(sender, instance, created, **kwargs): # triggered after a MissingPerson record is saved
-    """
-    Triggered after a MissingPerson record is saved.
-    Only runs matching for ACTIVE cases.
-    Only notifies on new record creation (not on every field update).
-    """
-    if instance.status != 'ACTIVE': # only consider active missing persons
-        return # else for inactive persons i.e. we don't want to trigger matching
 
-    # Avoid circular imports by importing inside the handler because it prevents import errors like "cannot import name"
+# ---------------- Triggered after a MissingPerson record is saved ----------------------
+
+@receiver(post_save, sender='family.MissingPerson') # Registers this function as a listener for Django's post_save signal — fires automatically after ANY MissingPerson.save() call anywhere in the code
+def match_on_missing_person_save(sender, instance, created, **kwargs):
+
+    # NOTE : instance is the specific database row being created or updated right now & MissingPerson is our Model where it is saved just now.
+
+    if instance.status != 'ACTIVE': # if not ACTIVE cases, no matching runs
+        return
+
     from matching.engine import run_matching_for_missing_person
     from notifications.utils import create_match_notifications
     from matching.models import MatchResult
 
-    # Count existing matches before running engine
+    # Count existing matches before running engine (It checks the Foreign Key column missing_person_id inside the MatchResult table against the exact database ID (instance.id) of the current record)
     existing_count = MatchResult.objects.filter(missing_person=instance).count()
 
     # Run matching engine — compares against all UNIDENTIFIED patients
     run_matching_for_missing_person(instance)
 
-    # Count matches after engine run
+    # Count matches after engine run (Same as Prev Line)
     new_count = MatchResult.objects.filter(missing_person=instance).count()
 
     # Only send notification if new matches were actually created
     if new_count > existing_count:
         create_match_notifications(missing_person=instance)
 
-# Basically, this function does the same thing as match_on_missing_person_save but for patients who are unidentified and uploaded by hospitals
+
+
+# ---------------- Triggered after a Unidentified Patient record is saved ----------------------
+
 @receiver(post_save, sender='hospital.UnidentifiedPatient')
-def match_on_patient_save(sender, instance, created, **kwargs): # triggered after an UnidentifiedPatient record is saved
-    """
-    Triggered after an UnidentifiedPatient record is saved.
-    Only runs matching for UNIDENTIFIED patients.
-    Only notifies when new matches are created.
-    """
+def match_on_patient_save(sender, instance, created, **kwargs):
+
     if instance.status != 'UNIDENTIFIED':
         return
 
@@ -54,11 +51,11 @@ def match_on_patient_save(sender, instance, created, **kwargs): # triggered afte
     from notifications.utils import create_match_notifications
     from matching.models import MatchResult
 
-    existing_count = MatchResult.objects.filter(unidentified_patient=instance).count() # count matches before engine run so that we can compare later
+    existing_count = MatchResult.objects.filter(unidentified_patient=instance).count()
 
-    run_matching_for_patient(instance) # call matching engine when a new patient is saved in UNIDENTIFIED state in our DB
+    run_matching_for_patient(instance)
 
-    new_count = MatchResult.objects.filter(unidentified_patient=instance).count() # count matches after engine run i.e. this count means new matches created
+    new_count = MatchResult.objects.filter(unidentified_patient=instance).count()
 
-    if new_count > existing_count: # only notify if new matches were created 
-        create_match_notifications(unidentified_patient=instance) # send notification to matched users
+    if new_count > existing_count: # only notify if new matches were created
+        create_match_notifications(unidentified_patient=instance)

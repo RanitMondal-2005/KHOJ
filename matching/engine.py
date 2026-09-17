@@ -1,389 +1,444 @@
 """
-The Heart of Our KHOJ Project :-
-Rule-Based Matching Engine for Khoj Logic :
-Compares a MissingPerson report against an UnidentifiedPatient record
-and returns both a total confidence score AND a per-field breakdown dict.
+matching/engine.py
 
-Scoring Breakdown (Total possible = 110, capped at 100):
----------------------------------------------------------
-  Gender exact match           - +20
-  Blood group exact match      - +15
-  Age similarity               - up to +15
-  Height similarity            - up to +10
-  District match               - +10
-  Identifying marks overlap    - up to +10
-  Clothing overlap             - up to +10
-  Face photo similarity        - up to +10  (image_hash library)
-  Weight similarity            - up to +5
-  Eye color match              - +5
-  Hair color match             - +5
-  Skin tone match              - +5
----------------------------------------------------------
-  TOTAL MAX (capped)           = 100
+Rule-Based Matching Engine for Khoj
+=====================================
+Compares a MissingPerson against an UnidentifiedPatient
+and returns a confidence score (0-100) with a per-field breakdown.
 
-Threshold: only store matches >= MATCH_CONFIDENCE_THRESHOLD (default 40)
+TWO HARD FILTERS run before any scoring:
+  1. Gender  — MALE<->MALE, FEMALE<->FEMALE, OTHER<->OTHER only.
+  2. Date    — Patient admitted BEFORE missing date = impossible. Eliminated without any scoring.
 
+SCORING BREAKDOWN (exactly 100 pts total):
+-------------------------------------------
+  Face similarity (dlib)       - up to 30 pts
+  Identifying marks (Jaccard)  - up to 15 pts
+  Age similarity               - up to 15 pts
+  Height similarity            - up to 12 pts
+  Clothing overlap (Jaccard)   - up to 10 pts
+  Blood group                  -      5 pts
+  District                     -      5 pts
+  Weight similarity            - up to 4 pts
+  Skin tone                    -      2 pts
+  Eye color                    -      1 pt
+  Hair color                   -      1 pt
+--------------------------------------------
+  Total                        -    100 pts
 
 """
 
-from django.conf import settings   
-
-# ── individual scoring functions ──────────────────────────────────────────────
-
-def score_gender(missing, patient):   # function to compare gender
-    """20 pts for exact gender match. 0 if either is UNKNOWN."""
-    
-    mp = missing.gender.upper()   # convert missing person's gender to uppercase
-    pt = patient.gender.upper()   # convert patient's gender to uppercase
-
-    if 'UNKNOWN' in (mp, pt):     # if any gender is UNKNOWN
-        return 0                  # no score given
-
-    return 20 if mp == pt else 0  # return 20 if both genders match otherwise 0
+from django.conf import settings
 
 
-def score_blood_group(missing, patient):   # function to compare blood group
-    """15 pts for exact blood group match. 0 if UNKNOWN on either side."""
+# ── HARD FILTERS ─────────────────────────────────────────────────────────────
 
-    mp = missing.blood_group.upper()   # convert missing person's blood group to uppercase
-    pt = patient.blood_group.upper()   # convert patient's blood group to uppercase
-
-    if 'UNKNOWN' in (mp, pt):          # if any blood group is UNKNOWN
-        return 0                       # no score
-
-    return 15 if mp == pt else 0       # exact match gives 15 otherwise 0
-
-
-def score_age(missing, patient):   # function to compare age similarity
+def should_compare(missing, patient):
     """
-    Age similarity with partial credit:
-      ±3 yrs  → 15 pts
-      ±6 yrs  → 10 pts
-      ±10 yrs →  5 pts
-      >10 yrs →  0 pts
+    Two hard filters before any scoring runs.
+    Returns False = skip this pair entirely (logical impossibility).
+    Returns True  = proceed to full scoring.
     """
 
-    diff = abs(missing.age - patient.age)   # calculate absolute age difference
+    # filter 1 — strict gender match
+    if missing.gender != patient.gender:
+        return False
 
-    if diff <= 3:   return 15   # very close age
-    if diff <= 6:   return 10   # moderately close age
-    if diff <= 10:  return 5    # slight age similarity
+    # filter 2 — date impossibility check
+    if patient.admission_date < missing.last_seen_date:
+        return False
 
-    return 0                    # too much difference
+    return True
 
 
-def score_height(missing, patient):   # function to compare height
+# ── FACE RECOGNITION (dlib) ───────────────────────────────────────────────────
+
+def score_face_similarity(missing, patient):
     """
-    Height similarity in cm:
-      ±5 cm  → 10 pts
-      ±10 cm →  6 pts
-      ±15 cm →  3 pts
-      >15 cm →  0 pts
+    dlib is an open-source, C++ toolkit with Python bindings designed for machine learning and computer vision. In our project, it handles the end-to-end facial recognition pipeline.
+    - Compares 2 photos : missing.passport_photo (family uploaded) with patient.face_image (hospital uploaded) using dlib's face recognition model.
+
+    How dlib face recognition works:
+      1. Detection (HOG Detector) : dlib detects human faces in both images.
+      2. Landmark Alignment : shape_predictor_68_face_landmarks finds 68 facial landmarks (i.e, locates the exact (x, y) coordinates of key anatomical features like
+         eyes, nose, mouth corners, jawlines etc.) on each detected face.
+      3. Feature Extraction (ResNet Embedding): dlib_face_recognition_resnet_model_v1 passes the aligned face through a pre-trained ResNet neural network to convert the image into a 128d vector array.
+            - WHAT IS 128d VECTOR?
+                Instead of comparing millions of raw pixels of an image, dlib's ResNet converts the face's
+                unique geometric features (eye spacing, nose shape, jawline curve) into a list(array)
+                of 128 distinct float numbers. eg : [-0.1402, 0.0823, 0.0541, -0.0912, ..., 0.0489]..
+                Two photos of the same person produce nearly identical 128 numbers, allowing
+                instant identity matching via basic vector subtraction (Euclidean distance).
+      4. Euclidean Distance Comparison of Two Image : calculates the geometric distance between the two 128d vector arrays. Decison taken based on this distance.
+      5. Returns 0 silently on any failure related to face matching:
+            - Never crashes the matching engine.
     """
+    import os # will be used to interact with the system files directly
 
-    diff = abs(missing.height - patient.height)   # calculate height difference
+    # 1. Database check: Verify image fields are populated in the database records
+    if not missing.passport_photo or not patient.face_image:
+        return 0
 
-    if diff <= 5:   return 10   # almost same height
-    if diff <= 10:  return 6    # close height
-    if diff <= 15:  return 3    # slight similarity
+    mp_path = missing.passport_photo.path # NOTE : .path comes directly from Django's ImageField / FileField to give the actual location path of that specific file in the server
+    pt_path = patient.face_image.path
 
-    return 0                    # very different height
+    # 2. Filesystem check: Verify physical files actually exist on hard disk before passing to dlib
+    if not os.path.exists(mp_path) or not os.path.exists(pt_path):
+        return 0
+
+    try:
+        import dlib
+        import numpy as np
+        # --------------------  STEP 1 : FIND LOCATION of Models --------------------
+        """
+         Load dlib's pre-trained weights via face_recognition_models.
+         Since dlib's core runs locally on the host machine, it requires direct filesystem
+         paths to open these files. Instead of hardcoding static paths (which break
+         across different servers or systems), these helpers
+         dynamically resolve the exact absolute locations of the model files wherever pip installed them.
+        """
+        import face_recognition_models
+        predictor_path = face_recognition_models.pose_predictor_model_location()  # 1. Finds where the 68-landmark model file sits & Returns the file's address as a text string
+        face_rec_model_path = face_recognition_models.face_recognition_model_location() # 2. Finds where the ResNet face recognition model file sits & Returns the file's address as a text string
+
+        # --------------------  STEP 2 : INITIALIZE dlib tools with those locations --------------------
+        detector  = dlib.get_frontal_face_detector()        # 1. HOG face detector
+        predictor = dlib.shape_predictor(predictor_path)    # 2. 68 landmark finder
+        face_rec  = dlib.face_recognition_model_v1(face_rec_model_path)  # 3. ResNet encoder
+
+        # -------------------------- STEP 3 : ACTUAL PROCESS OF DLIB (Detection -> Alignment(68 Landmarks) -> 128-d Embedding) --------------------------
+        def get_face_encoding(image_path):
+            """
+            Helper: loads an image, detects the primary face, and extracts its
+            128-dimensional biometric embedding(vectors). Returns None if no face is found.
+            """
+            img = dlib.load_rgb_image(image_path)
+
+            # STEP 3.1 : detect faces in the image —> returns list of bounding boxes eg: [rectangle(left, top, right, bottom)]...
+            detections = detector(img, 1)  # The 1 parameter (Upsampling): Tells dlib to double the size of the image once before scanning. This increases resolution, allowing the detector to spot smaller or slightly distant faces that would otherwise be missed.
+
+            if len(detections) == 0:
+                # no human face found in this image, so back
+                return None
+
+            # STEP 3.2 :  Facial Alignment (68 Landmarks)
+            shape    = predictor(img, detections[0])  # Use the first detected face to find 68 landmarks
+
+            # STEP 3.3 : 128-d Embedding
+            encoding = face_rec.compute_face_descriptor(img, shape)  # Passes the raw image alongside the 68 alignment landmarks into a 29-layer ResNet neural network. As The Output: The neural network transforms the normalized face into a mathematical fingerprint consisting of 128 floating-point numbers in an array.
+
+            # STEP 3.4 : A raw dlib.vector does not support standard mathematical operations in Python; so we convert it to a NumPy array.
+            return np.array(encoding)
+
+        # get face encodings for both photos
+        enc_missing = get_face_encoding(mp_path) # for Family Side
+        enc_patient = get_face_encoding(pt_path) # for Hospital Side
+
+        # if either photo has no detectable face — can't compare
+        if enc_missing is None or enc_patient is None:
+            return 0
+
+        # Calculate euclidean distance between two 128-d face vectors
+        distance = np.linalg.norm(enc_missing - enc_patient) # numpy.linalg.norm() computes a vector norm (Euclidean Distance btw two 128d Vector array); it compares index 0 with index 0, index 1 with index 1, all the way to index 127 and then returns one single number (a float), not an array.
+
+        # convert distance to score
+        if distance <= 0.3:    return 30   # very strong match
+        elif distance <= 0.45: return 22   # strong match
+        elif distance <= 0.6:  return 14   # may be possible match
+        else:                  return 0    # likely different people
+
+    except Exception:
+        # never crash the matching engine due to face recognition failure — silently return 0
+        return 0
 
 
-def score_weight(missing, patient):   # function to compare weight
+# ── TEXT SIMILARITY HELPER ────────────────────────────────────────────────────
+
+def _keyword_overlap(text1, text2, max_score):
     """
-    Weight similarity in kg:
-      ±5 kg  → 5 pts
-      ±10 kg → 3 pts
-      >10 kg → 0 pts
+    Jaccard similarity on keyword sets extracted from two text fields.
+
+    Algorithm:
+      1. Lowercase both texts
+      2. Replace commas with spaces, split into word tokens
+      3. Remove stopwords that carry no meaning (on, in, the, left, right etc.)
+      4. Jaccard ratio = |common words| / |union of words|
+      5. Score = ratio * max_score
+
+    Example:
+      text1 = "scar on left forehead, tattoo on wrist"
+      text2 = "forehead scar, small tattoo"
+      After stopword removal: {scar, forehead, tattoo, wrist} vs {forehead, scar, small, tattoo}
+      Common = {scar, forehead, tattoo} = 3
+      Union  = {scar, forehead, tattoo, wrist, small} = 5
+      Ratio  = 3/5 = 0.6 -> intersection/union will always produce a value btw 0 to 1 then we will normalize it
+      Score  = 0.6 * 15 = 9 pts
+
+    Used for both identifying_marks and clothing_description fields.
     """
+    if not text1 or not text2:
+        return 0
 
-    diff = abs(missing.weight - patient.weight)   # calculate weight difference
-
-    if diff <= 5:   return 5    # close weight
-    if diff <= 10:  return 3    # somewhat similar weight
-
-    return 0                    # weight too different
-
-
-def score_district(missing, patient):   # function to compare district
-    """10 pts if same district (case-insensitive). Geographic anchor."""
-
-    mp = missing.district.strip().lower()   # remove spaces and convert to lowercase
-    pt = patient.district.strip().lower()   # remove spaces and convert to lowercase
-
-    return 10 if mp == pt else 0            # same district gives 10 otherwise 0
-
-
-def score_eye_color(missing, patient):   # function to compare eye color
-    """5 pts for exact eye color match."""
-
-    if not missing.eye_color or not patient.eye_color:   # if any eye color missing
-        return 0                                         # no score
-
-    return 5 if missing.eye_color.strip().lower() == patient.eye_color.strip().lower() else 0
-    # exact eye color match gives 5
-
-
-def score_hair_color(missing, patient):   # function to compare hair color
-    """5 pts for exact hair color match."""
-
-    if not missing.hair_color or not patient.hair_color:   # if any hair color missing
-        return 0                                           # no score
-
-    return 5 if missing.hair_color.strip().lower() == patient.hair_color.strip().lower() else 0
-    # exact hair color match gives 5
-
-
-def score_skin_tone(missing, patient):   # function to compare skin tone
-    """5 pts for skin tone match. 0 if UNKNOWN."""
-
-    mp = missing.skin_tone.upper()   # convert missing person's skin tone to uppercase
-    pt = patient.skin_tone.upper()   # convert patient's skin tone to uppercase
-
-    if 'UNKNOWN' in (mp, pt):        # if any value is UNKNOWN
-        return 0                     # no score
-
-    return 5 if mp == pt else 0      # exact match gives 5
-
-
-def _keyword_overlap_score(text1, text2, max_score):   # helper function for text similarity
-    """
-    Shared helper: keyword overlap between two text fields.
-    Lowercases, splits into words, removes stopwords,
-    then scores based on Jaccard overlap ratio.
-    Used for both identifying_marks and clothing_description.
-    """
-
-    if not text1 or not text2:   # if any text is empty
-        return 0                 # no score
-
-    stopwords = {                # common words to ignore
+    # stopwords that appear frequently but add no identifying value
+    stopwords = {
         'on', 'in', 'the', 'a', 'an', 'of', 'at', 'and', 'or',
         'with', 'near', 'left', 'right', 'upper', 'lower', 'small',
-        'large', 'old', 'worn', 'color', 'colour'
+        'large', 'old', 'worn', 'color', 'colour', 'side', 'has', 'have'
     }
 
-    words1 = set(text1.lower().replace(',', ' ').split()) - stopwords
-    # convert first text into lowercase keyword set
-
+    # Applying the Alogorthm
+    words1 = set(text1.lower().replace(',', ' ').split()) - stopwords # Minus Stop word, means : remove these stop words from our cleaned words1
     words2 = set(text2.lower().replace(',', ' ').split()) - stopwords
-    # convert second text into lowercase keyword set
 
-    if not words1 or not words2:   # if no useful words remain
-        return 0                   # no score
+    if not words1 or not words2:
+        return 0
 
-    common = words1.intersection(words2)   # find common keywords, Role of Intersection() in django is that it returns all records that are present in both querysets.
-    union  = words1.union(words2)          # find all unique keywords, Role of Union() in django is that it combines two querysets i.e. it returns all unique records from both querysets.
+    common = words1.intersection(words2)
+    union  = words1.union(words2)
 
-    if not union:   # safety check for empty union i.e. no common keywords then return 0
+    if not union:
         return 0
 
     return round((len(common) / len(union)) * max_score, 1)
-    # Jaccard similarity formula × max score
 
 
-def score_identifying_marks(missing, patient):   # compare identifying marks
-    """Keyword overlap on identifying marks text. Max 10 pts."""
+# ── INDIVIDUAL SCORING FUNCTIONS ──────────────────────────────────────────────
 
-    return _keyword_overlap_score(
-        missing.identifying_marks,    # missing person's marks
-        patient.identifying_marks,    # patient's marks
-        max_score=10                  # maximum possible score
+def score_identifying_marks(missing, patient):
+    """
+    Jaccard keyword overlap on identifying marks. Max 15 pts.
+    """
+    return _keyword_overlap(
+        missing.identifying_marks,
+        patient.identifying_marks,
+        max_score=15
     )
 
 
-def score_clothing(missing, patient):   # compare clothing description
-    """Keyword overlap on clothing description. Max 10 pts."""
-
-    patient_clothing = getattr(patient, 'clothing_description', '') or ''
-    # safely get patient clothing description
-
-    missing_clothing = missing.clothing_description or ''
-    # get missing person's clothing description
-
-    return _keyword_overlap_score(missing_clothing, patient_clothing, max_score=10)
-    # calculate overlap score
-
-
-def score_face_similarity(missing, patient):   # compare photos
+def score_age(missing, patient):
     """
-    Compares the missing person's passport photo with the patient's face image
-    using perceptual hashing (imagehash library).
-
-    How perceptual hashing works:
-      - Each image is converted into a compact hash based on its visual structure
-      - Similar-looking images produce similar hashes
-      - The 'distance' between hashes tells us how visually different they are
-      - Distance 0 = identical images, higher = more different
-
-    This is NOT facial recognition. It detects visual similarity between photos.
-    Works well when the same person's photo is uploaded from different angles
-    or with slight lighting differences.
-
-    Scoring:
-      distance 0      → 10 pts
-      distance 1-5    → 7 pts
-      distance 6-10   → 4 pts
-      distance 11-15  → 1 pt
-      distance > 15   → 0 pts
-
-    Returns 0 silently if photos are missing or anything fails.
-    Never crashes the matching engine.
+    Age similarity with partial credit for close estimates.
+      ±3 yrs  - 15 pts  (very close)
+      ±6 yrs  - 10 pts  (close — within estimation margin)
+      ±10 yrs -  5 pts  (rough match)
+      >10 yrs -  0 pts  (too different)
     """
-
-    import os   # importing os module for file checking
-
-    if not missing.passport_photo or not patient.face_image:
-        return 0   # return 0 if any photo missing
-
-    mp_path = missing.passport_photo.path   # path of missing person's photo
-    pt_path = patient.face_image.path       # path of patient's face image
-
-    if not os.path.exists(mp_path) or not os.path.exists(pt_path):
-        return 0   # return 0 if files not found
-
-    try:
-        import imagehash           # library for perceptual hashing
-        from PIL import Image      # image processing library
-
-        hash1 = imagehash.phash(Image.open(mp_path))
-        # generate perceptual hash for missing person's image
-
-        hash2 = imagehash.phash(Image.open(pt_path))
-        # generate perceptual hash for patient image
-
-        distance = hash1 - hash2
-        # calculate hash distance between images
-
-        if distance == 0:      return 10   # identical images
-        elif distance <= 5:    return 7    # very similar images
-        elif distance <= 10:   return 4    # somewhat similar
-        elif distance <= 15:   return 1    # slight similarity
-        else:                  return 0    # too different
-
-    except Exception:
-        return 0   # silently fail if any image error happens
+    diff = abs(missing.age - patient.age)
+    if diff <= 3:   return 15
+    if diff <= 6:   return 10
+    if diff <= 10:  return 5
+    return 0
 
 
-# ── main scoring function ─────────────────────────────────────────────────────
-
-def compute_match_score(missing_person, unidentified_patient): # for calculating overall match score between a missing person and an unidentified patient
+def score_height(missing, patient):
     """
-    Runs all scoring checks and returns:
-      - total confidence score (float, capped at 100)
-      - breakdown dict showing each factor's individual score
-
-    The breakdown dict is stored in MatchResult.score_breakdown (JSONField)
-    so templates can display exactly which fields contributed.
-
-    Returns:
-        tuple: (total_score: float, breakdown: dict)
+    Height similarity in cm. Max 12 pts.
+    Height is fixed in adults — biologically reliable.
+      ±5 cm  - 12 pts
+      ±10 cm -  8 pts
+      ±15 cm -  4 pts
+      >15 cm -  0 pts
     """
+    diff = abs(missing.height - patient.height)
+    if diff <= 5:   return 12
+    if diff <= 10:  return 8
+    if diff <= 15:  return 4
+    return 0
 
+
+def score_clothing(missing, patient):
+    """
+    Jaccard keyword overlap on clothing description. Max 10 pts.
+    """
+    return _keyword_overlap(
+        missing.clothing_description,
+        patient.clothing_description,
+        max_score=10
+    )
+
+
+def score_blood_group(missing, patient):
+    """
+    Exact blood group match — 5 pts.
+    UNKNOWN on either side - 0 (can't compare).
+    """
+    mp = missing.blood_group.upper()
+    pt = patient.blood_group.upper()
+    if 'UNKNOWN' in (mp, pt):
+        return 0
+    return 5 if mp == pt else 0
+
+
+def score_district(missing, patient):
+    """
+    Same district = 5 pts. Spatial context only.
+    - district alone is weak evidence because people can travel across districts before being found.
+    """
+    mp = missing.district.strip().lower()
+    pt = patient.district.strip().lower()
+    return 5 if mp == pt else 0
+
+
+def score_weight(missing, patient):
+    """
+    Weight similarity in kg. Max 4 pts.
+    Low weight because weight fluctuates & not very reliable.
+      ±5 kg  - 4 pts
+      ±10 kg - 2 pts
+      >10 kg - 0 pts
+    """
+    diff = abs(missing.weight - patient.weight)
+    if diff <= 5:   return 4
+    if diff <= 10:  return 2
+    return 0
+
+
+def score_skin_tone(missing, patient):
+    """
+    2 pts for skin tone match.
+    Low weight — skin tone assessment is affected by:
+    hospital lighting conditions, camera quality, skin conditions etc.
+    """
+    mp = missing.skin_tone.upper()
+    pt = patient.skin_tone.upper()
+    if 'UNKNOWN' in (mp, pt):
+        return 0
+    return 2 if mp == pt else 0
+
+
+def score_eye_color(missing, patient):
+    """
+    1 pt for eye color match.
+    Low weight — very low variance in Indian population.
+    """
+    if not missing.eye_color or not patient.eye_color:
+        return 0
+    return 1 if missing.eye_color.strip().lower() == patient.eye_color.strip().lower() else 0
+
+
+def score_hair_color(missing, patient):
+    """
+    1 pt for hair color match.
+    Low weight — hair can be dyed, shaved, dirty, or altered.
+    """
+    if not missing.hair_color or not patient.hair_color:
+        return 0
+    return 1 if missing.hair_color.strip().lower() == patient.hair_color.strip().lower() else 0
+
+
+# ── MAIN SCORING FUNCTION ─────────────────────────────────────────────────────
+
+def compute_match_score(missing_person, unidentified_patient):
+    """
+    Runs all 11 scoring functions and returns:
+      - total score: float, capped at 100.0
+      - breakdown: dictionary with each factor's individual score
+
+    The breakdown dict is stored as JSONField on MatchResult —
+    templates use it to show exactly which fields contributed.
+
+    Gender and date are NOT in breakdown — they are hard filters
+    that already ran in should_compare() before this is called.
+    """
     breakdown = {
-        'gender':      score_gender(missing_person, unidentified_patient),      # gender score
-        'blood_group': score_blood_group(missing_person, unidentified_patient), # blood group score
-        'age':         score_age(missing_person, unidentified_patient),         # age score
-        'height':      score_height(missing_person, unidentified_patient),      # height score
-        'weight':      score_weight(missing_person, unidentified_patient),      # weight score
-        'district':    score_district(missing_person, unidentified_patient),    # district score
-        'eye_color':   score_eye_color(missing_person, unidentified_patient),   # eye color score
-        'hair_color':  score_hair_color(missing_person, unidentified_patient),  # hair color score
-        'skin_tone':   score_skin_tone(missing_person, unidentified_patient),   # skin tone score
-        'marks':       score_identifying_marks(missing_person, unidentified_patient), # marks score
-        'clothing':    score_clothing(missing_person, unidentified_patient),    # clothing score
-        'face_match':  score_face_similarity(missing_person, unidentified_patient), # face similarity score
+        'face_match':  score_face_similarity(missing_person, unidentified_patient),
+        'marks':       score_identifying_marks(missing_person, unidentified_patient),
+        'age':         score_age(missing_person, unidentified_patient),
+        'height':      score_height(missing_person, unidentified_patient),
+        'clothing':    score_clothing(missing_person, unidentified_patient),
+        'blood_group': score_blood_group(missing_person, unidentified_patient),
+        'district':    score_district(missing_person, unidentified_patient),
+        'weight':      score_weight(missing_person, unidentified_patient),
+        'skin_tone':   score_skin_tone(missing_person, unidentified_patient),
+        'eye_color':   score_eye_color(missing_person, unidentified_patient),
+        'hair_color':  score_hair_color(missing_person, unidentified_patient),
     }
 
     total = round(min(sum(breakdown.values()), 100.0), 1)
-    # add all scores, cap maximum at 100, round to 1 decimal
-
-    return total, breakdown   # return total score and detailed breakdown
+    return total, breakdown
 
 
-# ── match runners ─────────────────────────────────────────────────────────────
+# ── MATCH RUNNERS ─────────────────────────────────────────────────────────────
 
 def run_matching_for_missing_person(missing_person):
     """
-    Triggered when a new MissingPerson is saved (via signal).
-    Compares against all UNIDENTIFIED patients and stores matches above threshold.
-    """
+    Called by Django signal when a MissingPerson record is saved by a Family.
+    Compares against ALL UNIDENTIFIED patients in the database.
 
-    from hospital.models import UnidentifiedPatient   # import patient model
-    from matching.models import MatchResult           # import match result model
+    Flow:
+      1. Fetch all UNIDENTIFIED patients
+      2. For each patient — run should_compare() hard filters first
+         (gender filter + date filter)
+      3. If filters pass — run compute_match_score()
+      4. If score >= threshold — store/update MatchResult
+
+    get_or_create prevents duplicates (unique_together on model).
+    If match already exists and score changed — update it.
+    """
+    from hospital.models import UnidentifiedPatient
+    from matching.models import MatchResult
 
     threshold = getattr(settings, 'MATCH_CONFIDENCE_THRESHOLD', 40)
-    # get threshold value from settings, default = 40
-
     patients = UnidentifiedPatient.objects.filter(status='UNIDENTIFIED')
-    # fetch all unidentified patients
 
-    for patient in patients:   # loop through every patient
+    for patient in patients:
+
+        # hard filters run first — skip impossible pairs before scoring
+        if not should_compare(missing_person, patient):
+            continue
 
         score, breakdown = compute_match_score(missing_person, patient)
-        # calculate score between missing person and patient
 
-        if score >= threshold:   # only save strong matches
-
-            match, created = MatchResult.objects.get_or_create(
-                missing_person=missing_person,      # current missing person
-                unidentified_patient=patient,       # current patient
-
+        if score >= threshold:
+            match, created = MatchResult.objects.get_or_create( # get_or_create() method always returns a tuple containing two items: (object, created) ; object->MatchResult & created ->True/False (always)
+                missing_person=missing_person,
+                unidentified_patient=patient,
                 defaults={
-                    'confidence_score': score,      # save total score
-                    'score_breakdown': breakdown,  # save breakdown dictionary
-                    'status': 'PENDING'            # default match status
+                    'confidence_score': score,
+                    'score_breakdown': breakdown,
+                    'status': 'PENDING'
                 }
             )
-
+            # If created is False, the record already existed -> update score if it changed on re-run
             if not created and match.confidence_score != score:
-                # if match already exists but score changed
-
-                match.confidence_score = score      # update score
-                match.score_breakdown = breakdown   # update breakdown
-
-                match.save()   # save updated match
+                match.confidence_score = score # Set old number to new number
+                match.score_breakdown = breakdown # Update BreakDown Dict
+                match.save()
 
 
 def run_matching_for_patient(unidentified_patient):
     """
-    Triggered when a new UnidentifiedPatient is saved (via signal).
-    Compares against all ACTIVE missing person reports.
-    """
+    Called by Django signal when an UnidentifiedPatient record is saved by Hospital.
+    Compares against ALL ACTIVE missing person reports.
 
-    from family.models import MissingPerson   # import missing person model
-    from matching.models import MatchResult   # import match result model
+    Same FLOW as run_matching_for_missing_person but from patient side.
+    """
+    from family.models import MissingPerson
+    from matching.models import MatchResult
 
     threshold = getattr(settings, 'MATCH_CONFIDENCE_THRESHOLD', 40)
-    # get threshold from settings
-
     missing_cases = MissingPerson.objects.filter(status='ACTIVE')
-    # fetch all active missing person reports
 
-    for missing in missing_cases:   # loop through every missing case
+    for missing in missing_cases:
+
+        # hard filters first — eliminate impossible pairs
+        if not should_compare(missing, unidentified_patient):
+            continue
 
         score, breakdown = compute_match_score(missing, unidentified_patient)
-        # calculate matching score
 
-        if score >= threshold:   # only store meaningful matches i.e. those with a high confidence score
-
+        if score >= threshold:
             match, created = MatchResult.objects.get_or_create(
-                missing_person=missing,                 # current missing person
-                unidentified_patient=unidentified_patient, # current patient
-
+                missing_person=missing,
+                unidentified_patient=unidentified_patient,
                 defaults={
-                    'confidence_score': score,      # store confidence score
-                    'score_breakdown': breakdown,  # store detailed breakdown
-                    'status': 'PENDING'            # default status
+                    'confidence_score': score,
+                    'score_breakdown': breakdown,
+                    'status': 'PENDING'
                 }
             )
-
             if not created and match.confidence_score != score:
-                # if match exists and score changed, when the new score is higher
-                # than the old score for a new search 
+                match.confidence_score = score
+                match.score_breakdown = breakdown
+                match.save()
 
-                match.confidence_score = score      # update score on existing match
-                match.score_breakdown = breakdown   # update breakdown for existing match
-
-                match.save()   # save updated result
