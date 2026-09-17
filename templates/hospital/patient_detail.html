@@ -88,7 +88,7 @@
                   <span class="text-muted d-block text-center" style="font-size:0.7rem;">{{ match.confidence_label.0 }}</span>
 
                   <div class="mt-2 d-flex gap-1 justify-content-end">
-                    <a href="{% url 'hospital:match_alerts' %}" class="btn btn-outline-success btn-sm">View Match</a>
+                    <a href="{% url 'hospital:match_alerts' %}#match-{{ match.pk }}" class="btn btn-outline-success btn-sm">View Match</a> <!-- user clicks View Match, the browser loads the match_alerts page and jumps straight to that specific card.-->
                     <a href="{% url 'hospital:reject_match' match.pk %}" class="btn btn-outline-secondary btn-sm"
                        onclick="return confirm('Dismiss this match?')">Dismiss</a>
                   </div>

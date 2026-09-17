@@ -20,7 +20,11 @@
   {% for match in matches %}
 
   <!-- ── MATCH CARD CONTAINER ─────────────────────────────────── -->
-  <div class="card mb-4" style="border-radius:12px; border:1px solid #e3e8ef; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <div class="card mb-4" style="border-radius:12px; border:1px solid #e3e8ef; box-shadow:0 2px 8px rgba(0,0,0,0.06);" id="match-{{ match.id }}">
+    <!--
+      Every row in DB table has a unique primary key ID: 1,2,.. etc. Django's template engine simply injects that exact number into two places: the link and the card element.
+      So, each card gets its own PK attached as ID via id="match-{{ match.id }}; now in notfications or report_details we can use this to get to our SPECIFIC match card by attaching #match-{{ match.pk }} in URL of anchor tag along with this page's URL.
+    -->
     <div class="card-body p-4">
 
       <!-- ── TOP SECTION: COMPARISON & OVERVIEW ───────────────── -->

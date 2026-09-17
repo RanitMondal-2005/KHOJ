@@ -141,8 +141,8 @@
                   </span>
                   <span class="text-muted d-block text-center" style="font-size:0.7rem;">{{ match.confidence_label.0 }}</span>
                   <div class="mt-1 d-flex gap-1 justify-content-end">
-                    <a href="{% url 'family:my_matches' %}"
-                       class="btn btn-outline-primary btn-sm">View Match</a>
+                    <a href="{% url 'family:my_matches' %}#match-{{ match.pk }}"
+                        class="btn btn-outline-primary btn-sm">View Match</a> <!-- Redirect to that specific match section in the my_matches.html pg using #match-{{ match.pk }} -->
                     <a href="{% url 'family:reject_match' match.pk %}"
                        class="btn btn-outline-secondary btn-sm"
                        onclick="return confirm('Dismiss this match?')">Dismiss</a>
