@@ -1,32 +1,32 @@
 """
 Simple in-app notification model.
-Only FAMILY and HOSPITAL users receive notifications.
-POLICE do NOT receive notifications.
+- Both FAMILY and HOSPITAL users receive notifications upon valid match.
 """
 
 from django.db import models
-from accounts.models import KhojUser # Importing the KhojUser model where we have user information
+from accounts.models import KhojUser
 
-# Notification model for in-app notifications, This model is needed or else later features like notifications will break 
-# for e.g : when we want to create a notification for a user, we need to have a model to store that notification in the database, and also to retrieve it later when we want to display it in the notifications page or in the navbar badge. So this model is essential for the notifications feature to work properly.
+# --------------- Notification model (DB Table) for in-app notifications ---------------
+
 class Notification(models.Model):
-    """In-app notification for family and hospital users."""
 
     TYPE_CHOICES = [
-        ('MATCH_FOUND', 'Potential Match Found'),
-        ('CASE_RESOLVED', 'Case Resolved'),
-        ('PATIENT_IDENTIFIED', 'Patient Possibly Identified'),
-        ('GENERAL', 'General'),
+        ('MATCH_FOUND', 'Potential Match Found'), # Sent to family when their report gets a new match
+        ('CASE_RESOLVED', 'Case Resolved'),  # Currently unused
+        ('PATIENT_IDENTIFIED', 'Patient Possibly Identified'), # Sent to hospital when their patient gets a new match
+        ('GENERAL', 'General'), # Currently unused
     ]
 
     user = models.ForeignKey(KhojUser, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
-    notif_type = models.CharField(max_length=30, choices=TYPE_CHOICES, default='GENERAL')
+    notif_type = models.CharField(max_length=30, choices=TYPE_CHOICES, default='GENERAL') # In utils.py, code explicitly passes the exact notif_type(== MATCH_FOUND/IDENTIFIED) every single time Notification.objects.create(...) is executed, so the default value is simply bypassed.
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Optional link to a match (for quick navigation)
-    related_match_id = models.PositiveIntegerField(null=True, blank=True) # ID of the related match, if any i.e. basically the match this notification is about..
+    # Link to a specific match (for quick navigation)
+    related_match_id = models.PositiveIntegerField(null=True, blank=True) # stores the PK(id)of the corresponding MatchResult record as a plain integer.It holds the exact numeric ID needed to construct template anchors (such as href="{% url 'family:dashboard' %}#match-{{ notif.related_match_id }}") so users are scrolled directly to the relevant card.
+    # NOTE : We didnt Used a FK here - So that The notification remains atleast in the user's historical feed even after the underlying match candidate no longer exists in the active queue.
+
 
     class Meta:
         ordering = ['-created_at'] # Arrange by Newest notifications first

@@ -3,7 +3,6 @@ Django signals that trigger the matching engine automatically when:
   1. A new MissingPerson report is saved (status=ACTIVE)
   2. A new UnidentifiedPatient record is saved (status=UNIDENTIFIED)
 
-Notifications are sent only when new matches are created (not on re-runs).
 """
 
 from django.db.models.signals import post_save
@@ -35,7 +34,12 @@ def match_on_missing_person_save(sender, instance, created, **kwargs):
 
     # Only send notification if new matches were actually created
     if new_count > existing_count:
+        # 1. Notify the Family user
         create_match_notifications(missing_person=instance)
+
+        # 2. Notify the Hospital whose patient was matched
+        for match in MatchResult.objects.filter(missing_person=instance, status='PENDING'):
+            create_match_notifications(unidentified_patient=match.unidentified_patient)
 
 
 
@@ -58,4 +62,9 @@ def match_on_patient_save(sender, instance, created, **kwargs):
     new_count = MatchResult.objects.filter(unidentified_patient=instance).count()
 
     if new_count > existing_count: # only notify if new matches were created
+        # 1. Notify the Hospital user
         create_match_notifications(unidentified_patient=instance)
+
+        # 2. Notify the Family whose report was matched
+        for match in MatchResult.objects.filter(unidentified_patient=instance, status='PENDING'):
+            create_match_notifications(missing_person=match.missing_person)

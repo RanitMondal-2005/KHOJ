@@ -370,7 +370,7 @@ def run_matching_for_missing_person(missing_person):
       2. For each patient — run should_compare() hard filters first
          (gender filter + date filter)
       3. If filters pass — run compute_match_score()
-      4. If score >= threshold — store/update MatchResult
+      4. If score >= threshold — store/update MatchResult with Status Flag PENDING by default, that will be used to make notifications.
 
     get_or_create prevents duplicates (unique_together on model).
     If match already exists and score changed — update it.
@@ -393,10 +393,10 @@ def run_matching_for_missing_person(missing_person):
             match, created = MatchResult.objects.get_or_create( # get_or_create() method always returns a tuple containing two items: (object, created) ; object->MatchResult & created ->True/False (always)
                 missing_person=missing_person,
                 unidentified_patient=patient,
-                defaults={
+                defaults={ # when matchResult will be created, Save it with these defaults,
                     'confidence_score': score,
                     'score_breakdown': breakdown,
-                    'status': 'PENDING'
+                    'status': 'PENDING' # STATUS = PENDING; IS NEEDED FOR OUR NOTIFICATION ENGINE
                 }
             )
             # If created is False, the record already existed -> update score if it changed on re-run

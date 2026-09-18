@@ -16,36 +16,45 @@
 
   {% if notifications %}
   <div class="list-group shadow-sm border-0" style="border-radius:10px; overflow:hidden;">
-    {% for notif in notifications %}
-    <div class="list-group-item py-3 px-3 border-bottom {% if not notif.is_read %}bg-light{% endif %}">
-      <div class="d-flex justify-content-between align-items-start">
-        <div class="d-flex align-items-start gap-2">
-          <i class="bi bi-bell-fill text-primary mt-1"></i>
+      {% for notif in notifications %}
+          <div class="list-group-item py-3 px-3 border-bottom {% if not notif.is_read and notif.related_match_id in active_match_ids %}bg-light{% elif notif.related_match_id and notif.related_match_id not in active_match_ids %}opacity-75 bg-light-subtle{% endif %}">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="d-flex align-items-start gap-2">
 
-          <div>
-            <div class="text-dark small fw-medium" style="line-height: 1.4;">
-              {{ notif.message }}
-            </div>
+                <!-- Icon changes color based on active/inactive status of Notifications -->
+                <i class="bi {% if not notif.related_match_id or notif.related_match_id in active_match_ids %}bi-bell-fill text-primary{% else %}bi-bell-slash text-secondary{% endif %} mt-1"></i>
 
-            <!-- ADDED HERE: Action Link using related_match_id -->
-            {% if notif.related_match_id %}
-              <div class="mt-2">
-                <a href="{% if request.user.role == 'HOSPITAL' %}{% url 'hospital:match_alerts' %}#match-{{ notif.related_match_id }}{% else %}{% url 'family:my_matches' %}#match-{{ notif.related_match_id }}{% endif %}"
-                  class="btn btn-sm btn-outline-primary py-0 px-2"
-                  style="font-size: 0.75rem;">
-                  Review Match <i class="bi bi-arrow-right ms-1"></i>
-                </a>
+                <div>
+                  <!-- Notification Message text greys out if dismissed/resolved -->
+                  <div class="{% if notif.related_match_id and notif.related_match_id not in active_match_ids %}text-muted{% else %}text-dark{% endif %} small fw-medium" style="line-height: 1.4;">
+                    {{ notif.message }}
+                  </div>
+
+                  <!-- Action buttons based on match state -->
+                  {% if notif.related_match_id %}
+                    <div class="mt-2">
+                      {% if notif.related_match_id in active_match_ids %}
+                        <a href="{% if request.user.role == 'HOSPITAL' %}{% url 'hospital:match_alerts' %}#match-{{ notif.related_match_id }}{% else %}{% url 'family:my_matches' %}#match-{{ notif.related_match_id }}{% endif %}"
+                          class="btn btn-sm btn-outline-primary py-0 px-2"
+                          style="font-size: 0.75rem;">
+                          Review Match <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                      {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle py-1 px-2" style="font-size: 0.70rem;">
+                          <i class="bi bi-check2-circle me-1"></i>Dismissed / Inactive
+                        </span>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
               </div>
-            {% endif %}
-          </div>
-        </div>
 
-        <small class="text-muted text-nowrap ms-3" style="font-size:0.75rem;">
-          {{ notif.created_at|date:"d M, h:i A" }}
-        </small>
-      </div>
-    </div>
-    {% endfor %}
+              <small class="text-muted text-nowrap ms-3" style="font-size:0.75rem;">
+                {{ notif.created_at|date:"d M, h:i A" }}
+              </small>
+            </div>
+          </div>
+      {% endfor %}
   </div>
   {% else %}
   <div class="text-center text-muted py-5">
