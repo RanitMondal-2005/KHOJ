@@ -63,11 +63,12 @@ def login_family(request):
         form = KhojLoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            # NOTE : We are not explicitly writting `user=authenticate(request,username=...,password=...)` as KhojLoginForm inherits AuthenticationForm in forms.py;so its handled in forms.is_valid() check only
             if user.role != 'FAMILY':
                 messages.error(request, "This login page is for family users only.")
                 return redirect('login_family')
             # backend must be specified when multiple backends are configured
-            login(request, user, backend='accounts.backends.EmailBackend') # backend='accounts.backends.EmailBackend' means we are using the EmailBackend for authentication, this is imp to specify because multiple backends like StaffIDBackend and PoliceIDBackend etc. are configured.
+            login(request, user, backend='accounts.backends.EmailBackend') # backend='accounts.backends.EmailBackend' means we are using the EmailBackend for authentication, IMP to specify as multiple backends(like EmailID or StaffID backend) are configured.
             messages.success(request, f"Welcome back, {user.full_name}!")
             return redirect('family:dashboard')
         else:
@@ -123,7 +124,7 @@ def register_family(request):
     if request.method == 'POST':
         form = FamilyRegistrationForm(request.POST)
         if form.is_valid(): # All Server Side Validations are Checked i.e, all def clean(...) methods triggered & Validated
-            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py to save the form details in DB
+            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py to SAVE the credentials in DB
             login(request, user, backend='accounts.backends.EmailBackend') # must specify backend explicitly - as multiple backends are configured for our proj.
             messages.success(request, f"Welcome to Khoj, {user.full_name}!")
             return redirect('family:dashboard')
@@ -140,7 +141,7 @@ def register_hospital(request):
     if request.method == 'POST':
         form = HospitalRegistrationForm(request.POST)
         if form.is_valid(): # Form Validations Checked
-            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py
+            user = form.save() # Save Credentials to DB via Calling the def save(..) in forms.py in HospitalRegistartionForm
             login(request, user, backend='accounts.backends.EmailBackend')
             messages.success(request, f"Welcome to Khoj, {user.full_name}!")
             return redirect('hospital:dashboard')
