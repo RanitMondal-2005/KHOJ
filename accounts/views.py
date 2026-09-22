@@ -106,9 +106,9 @@ def login_hospital(request):
 
 
 # ---- Logout view ----
-# NOTE : We're using Django's logout() function (imported at the top), but wrapping it in our own view to add the flash message for UI improvements.
+# NOTE : We're using Django's logout() function (imported at the top), and also adding the flash message for UI improvements.
 def logout_view(request):
-    logout(request)
+    logout(request) # Default Logout of Django
     messages.info(request, "You have been logged out.")
     return redirect('home')
 
@@ -123,7 +123,7 @@ def register_family(request):
     if request.method == 'POST':
         form = FamilyRegistrationForm(request.POST)
         if form.is_valid(): # All Server Side Validations are Checked i.e, all def clean(...) methods triggered & Validated
-            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py
+            user = form.save() # <--- CALLING THE def save(..) FUNCTION DEFINED IN FamilyRegistration forms.py to save the form details in DB
             login(request, user, backend='accounts.backends.EmailBackend') # must specify backend explicitly - as multiple backends are configured for our proj.
             messages.success(request, f"Welcome to Khoj, {user.full_name}!")
             return redirect('family:dashboard')
