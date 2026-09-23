@@ -64,20 +64,50 @@
 
 
 <!--STATS BAR -->
-<section style="background:#fff; border-bottom:1px solid #e3e8ef;">
+<section class="position-relative" style="margin-top: -36px; z-index: 5;">
     <div class="container">
-        <div class="row text-center py-4 g-0">
-            <div class="col-4">
-                <div class="fw-bold fs-4 text-dark">2</div>
-                <div class="text-muted" style="font-size:0.78rem;">User Roles</div>
-            </div>
-            <div class="col-4" style="border-left:1px solid #e3e8ef; border-right:1px solid #e3e8ef;">
-                <div class="fw-bold fs-4 text-dark">12</div>
-                <div class="text-muted" style="font-size:0.78rem;">Matching Factors</div>
-            </div>
-            <div class="col-4">
-                <div class="fw-bold fs-4 text-dark">100%</div>
-                <div class="text-muted" style="font-size:0.78rem;">Rule-Based</div>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <div class="row text-center py-3 g-0 bg-white rounded-4 shadow-sm"
+                     style="border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);">
+
+                    <!-- Stat 1 -->
+                    <div class="col-4 py-2">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                            <i class="bi bi-people-fill text-primary" style="font-size: 1.15rem; opacity: 0.85;"></i>
+                            <span class="fw-bold fs-4 text-dark lh-1">2</span>
+                        </div>
+                        <div class="text-uppercase text-muted fw-semibold"
+                             style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            User Roles
+                        </div>
+                    </div>
+
+                    <!-- Stat 2 -->
+                    <div class="col-4 py-2" style="border-left: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                            <i class="bi bi-diagram-3-fill text-primary" style="font-size: 1.15rem; opacity: 0.85;"></i>
+                            <span class="fw-bold fs-4 text-dark lh-1">11</span>
+                        </div>
+                        <div class="text-uppercase text-muted fw-semibold"
+                             style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            Matching Factors
+                        </div>
+                    </div>
+
+                    <!-- Stat 3 -->
+                    <div class="col-4 py-2">
+                        <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+                            <i class="bi bi-shield-check text-success" style="font-size: 1.15rem; opacity: 0.85;"></i>
+                            <span class="fw-bold fs-4 text-dark lh-1">100%</span>
+                        </div>
+                        <div class="text-uppercase text-muted fw-semibold"
+                             style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                            Rule-Based
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -106,7 +136,7 @@
                     <h5 class="fw-semibold mb-2">Family Files a Report</h5>
                     <p class="text-muted small mb-0">
                         Register and submit a missing person report with physical description,
-                        Aadhaar number, photos, district, and contact details.
+                        passport photo, last seen date, district, and contact details.
                         Matching runs automatically on submission.
                     </p>
                 </div>
@@ -120,8 +150,8 @@
                     <div class="text-muted mb-2" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Step 2</div>
                     <h5 class="fw-semibold mb-2">Hospital Uploads a Patient</h5>
                     <p class="text-muted small mb-0">
-                        Hospital staff records an unidentified patient — estimated age,
-                        physical features, clothing, any ID found, and etc.
+                        Hospital staff records an unidentified patient — admission date,
+                        estimated age, physical features, clothing, and face image.
                         Matching runs automatically on upload.
                     </p>
                 </div>
@@ -135,8 +165,8 @@
                     <div class="text-muted mb-2" style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Step 3</div>
                     <h5 class="fw-semibold mb-2">System Finds Matches</h5>
                     <p class="text-muted small mb-0">
-                        The matching engine scores compatibility across several factors —
-                        gender, blood group, age, district, marks, clothing, and photo similarity.
+                        The matching engine checks gender and date filters, then scores compatibility
+                        across face similarity, identifying marks, clothing, biometric, and demographic factors.
                         Both parties are notified instantly.
                     </p>
                 </div>
@@ -162,7 +192,7 @@
                 </h3>
                 <p class="text-muted mb-4" style="font-size:0.92rem; line-height:1.8;">
                     No black-box AI. Every match is generated by a weighted scoring system
-                    across 12 physical and geographic factors. You can see exactly why
+                    across 11 physical and geographic factors. You can see exactly why
                     a match was flagged — down to the individual score per field.
                 </p>
                 <a href="{% url 'about' %}" class="btn btn-outline-dark btn-sm px-4"> <!-- About us page url -->
