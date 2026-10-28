@@ -199,24 +199,25 @@ Visit http://127.0.0.1:8000 in your browser.
 The local development configuration should not automatically be considered production-ready.
 ---
 
+
 ## 📚 Technical References
 
 The following resources document the libraries and models underlying KHOJ's facial-recognition implementation.
 
 ### dlib
 
-### 1.dlib Face Recognition Example (http://dlib.net/face_recognition.py.html)
+#### 1.[dlib Face Recognition Example](http://dlib.net/face_recognition.py.html)
 Demonstrates face recognition and face-descriptor comparison using dlib.
 
-### 2.dlib Python API Documentation (http://dlib.net/python/index.html)
+#### 2.[dlib Python API Documentation](http://dlib.net/python/index.html)
 Reference documentation for dlib's Python API and computer-vision functionality.
 
 ### Face Recognition Models & Implementation
 
-### 3.face_recognition_models (https://github.com/ageitgey/face_recognition_models)
-Repository containing pretrained models used by the face_recognition ecosystem.
+#### 3.[face_recognition_models](https://github.com/ageitgey/face_recognition_models)
+GitHub Repository containing pretrained models used by the face_recognition ecosystem.
 
-### 4.face_recognition (https://github.com/ageitgey/face_recognition)
+#### 4.[face_recognition](https://github.com/ageitgey/face_recognition)
 Reference implementation of the face-recognition library, including face_recognition/api.py, which contains face-encoding and comparison functionality.
 
 These resources describe the underlying libraries and models. KHOJ's eligibility filters, weighted scoring rules, candidate threshold, and notification workflow are application-level logic.
@@ -234,7 +235,7 @@ These resources describe the underlying libraries and models. KHOJ's eligibility
 - Biometric limitations: Facial-recognition results may contain false positives or - false negatives.
 - Responsible data handling: Personal information and photographs should be handled in accordance with applicable privacy and data-protection requirements.
 
-## Important Notes
+## 🚩Important Notes
 
 - Khoj is a coordination and decision-support tool, not an official FIR registry.
 - Always lodge a formal FIR with your local police jurisdiction for active missing person incidents.
